@@ -71,25 +71,28 @@ const AddShop = () => {
   const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
                       currentTheme?.toLowerCase()?.includes("dark");
 
-  // DataGrid columns
+  // DataGrid columns - responsive widths
   const columns = [
     { 
       field: "id", 
       headerName: "S.No", 
-      width: 80, 
+      width: 60, 
+      minWidth: 60,
       renderCell: (params) => params.row.index + 1 
     },
     { 
       field: "productName", 
       headerName: "Product", 
-      width: 200, 
+      width: 150, 
+      minWidth: 120,
+      flex: 1,
       sortable: true 
     },
-
     { 
       field: "unitPrice", 
       headerName: "Unit Price", 
-      width: 120, 
+      width: 100, 
+      minWidth: 80,
       sortable: true, 
       renderCell: (params) => (
         <span className="fw-bold">${params.row.unitPrice.toFixed(2)}</span>
@@ -97,8 +100,9 @@ const AddShop = () => {
     },
     { 
       field: "totalPrice", 
-      headerName: "Total Price", 
-      width: 120, 
+      headerName: "Total", 
+      width: 100, 
+      minWidth: 80,
       sortable: true, 
       renderCell: (params) => (
         <span className="fw-bold">${params.row.totalPrice.toFixed(2)}</span>
@@ -106,8 +110,9 @@ const AddShop = () => {
     },
     { 
       field: "taxRate", 
-      headerName: "Tax Rate", 
-      width: 100, 
+      headerName: "Tax %", 
+      width: 80, 
+      minWidth: 60,
       sortable: true, 
       renderCell: (params) => (
         <span>{params.row.taxRate}%</span>
@@ -115,8 +120,9 @@ const AddShop = () => {
     },
     { 
       field: "taxAmount", 
-      headerName: "Tax Amount", 
-      width: 120, 
+      headerName: "Tax Amt", 
+      width: 100, 
+      minWidth: 80,
       sortable: true, 
       renderCell: (params) => (
         <span className="fw-bold">${params.row.taxAmount.toFixed(2)}</span>
@@ -124,8 +130,9 @@ const AddShop = () => {
     },
     { 
       field: "priceWithTax", 
-      headerName: "Price With Tax", 
-      width: 140, 
+      headerName: "Final Price", 
+      width: 120, 
+      minWidth: 100,
       sortable: true, 
       renderCell: (params) => (
         <span className="fw-bold text-success">${params.row.priceWithTax.toFixed(2)}</span>
@@ -133,8 +140,9 @@ const AddShop = () => {
     },
     {
       field: "actions",
-      headerName: "Actions",
-      width: 100,
+      headerName: "Action",
+      width: 80,
+      minWidth: 60,
       sortable: false,
       renderCell: (params) => (
         <Button
@@ -268,15 +276,15 @@ const AddShop = () => {
   }
 
   return (
-    <div className="container">
+    <div className="container-fluid px-2 px-md-3">
       <Card>
         <CardHeader>
-          <CardTitle tag="h4">Add New Shop</CardTitle>
+          <CardTitle tag="h4" className="text-center text-md-start">Add New Shop</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={handleSubmit}>
             <Row>
-              <Col md="6">
+              <Col xs="12" md="6">
                 <FormGroup>
                   <Label for="name">Shop Name *</Label>
                   <Input
@@ -289,7 +297,7 @@ const AddShop = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md="6">
+              <Col xs="12" md="6">
                 <FormGroup>
                   <Label for="location">Location *</Label>
                   <Input
@@ -306,13 +314,14 @@ const AddShop = () => {
 
             {/* Products Section */}
             <Row>
-              <Col md="12">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5>Products</h5>
+              <Col xs="12">
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
+                  <h5 className="mb-0">Products</h5>
                   <Button
                     color="success"
                     size="sm"
                     onClick={() => setShowAddProductForm(true)}
+                    className="w-100 w-md-auto"
                   >
                     <Plus size={12} className="me-1" />
                     Add Product
@@ -329,7 +338,7 @@ const AddShop = () => {
                 </CardHeader>
                 <CardBody>
                   <Row>
-                    <Col md="6">
+                    <Col xs="12" md="6">
                       <FormGroup>
                         <Label>Select Product</Label>
                         <Input
@@ -353,7 +362,7 @@ const AddShop = () => {
                         </Input>
                       </FormGroup>
                     </Col>
-                    <Col md="6">
+                    <Col xs="12" md="6">
                       <FormGroup>
                         <Label>Unit Price</Label>
                         <Input
@@ -368,7 +377,7 @@ const AddShop = () => {
                   </Row>
                   
                   <Row>
-                    <Col md="3">
+                    <Col xs="6" md="3">
                       <FormGroup>
                         <Label>Total Price</Label>
                         <Input
@@ -379,7 +388,7 @@ const AddShop = () => {
                         />
                       </FormGroup>
                     </Col>
-                    <Col md="3">
+                    <Col xs="6" md="3">
                       <FormGroup>
                         <Label>Tax Rate (%)</Label>
                         <Input
@@ -391,7 +400,7 @@ const AddShop = () => {
                         />
                       </FormGroup>
                     </Col>
-                    <Col md="3">
+                    <Col xs="6" md="3">
                       <FormGroup>
                         <Label>Tax Amount</Label>
                         <Input
@@ -402,7 +411,7 @@ const AddShop = () => {
                         />
                       </FormGroup>
                     </Col>
-                    <Col md="3">
+                    <Col xs="6" md="3">
                       <FormGroup>
                         <Label>Price With Tax</Label>
                         <Input
@@ -415,11 +424,11 @@ const AddShop = () => {
                     </Col>
                   </Row>
                   
-                  <div className="d-flex gap-2">
-                    <Button color="primary" onClick={handleAddProduct}>
+                  <div className="d-flex flex-column flex-md-row gap-2">
+                    <Button color="primary" onClick={handleAddProduct} className="w-100 w-md-auto">
                       Add Product
                     </Button>
-                    <Button color="secondary" onClick={() => setShowAddProductForm(false)}>
+                    <Button color="secondary" onClick={() => setShowAddProductForm(false)} className="w-100 w-md-auto">
                       Cancel
                     </Button>
                   </div>
@@ -432,19 +441,20 @@ const AddShop = () => {
             {/* Products List */}
             {formData.products.length > 0 && (
               <Row>
-                <Col md="12">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6>Added Products</h6>
+                <Col xs="12">
+                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2 gap-2">
+                    <h6 className="mb-0">Added Products</h6>
                     <Button
                       color="success"
                       size="sm"
                       onClick={() => setShowAddProductForm(true)}
+                      className="w-100 w-md-auto"
                     >
                       <Plus size={12} className="me-1" />
                       Add Another Product
                     </Button>
                   </div>
-                  <div style={{ height: 400, width: '100%' }}>
+                  <div style={{ height: 400, width: '100%', overflowX: 'auto' }}>
                     <DataGrid
                       key={currentTheme}
                       rows={gridData}
@@ -604,23 +614,33 @@ const AddShop = () => {
             {/* Summary Section */}
             {formData.products.length > 0 && (
               <Row>
-                <Col md="12">
+                <Col xs="12">
                   <Card className="mt-3" style={{ backgroundColor: '#e3f2fd' }}>
                     <CardHeader>
-                      <CardTitle tag="h6">Shop Summary</CardTitle>
+                      <CardTitle tag="h6" className="text-center text-md-start">Shop Summary</CardTitle>
                     </CardHeader>
                     <CardBody>
                       <Row>
-                        <Col md="4">
-                          <strong>Total Products: </strong>{formData.products.length}
+                        <Col xs="12" md="4" className="mb-2 mb-md-0">
+                          <div className="text-center text-md-start">
+                            <strong>Total Products: </strong>{formData.products.length}
+                          </div>
                         </Col>
-                        <Col md="4">
-                          <strong>Total Price (Before Tax): </strong>
-                          ${formData.products.reduce((sum, product) => sum + product.priceWithoutTax, 0).toFixed(2)}
+                        <Col xs="12" md="4" className="mb-2 mb-md-0">
+                          <div className="text-center text-md-start">
+                            <strong>Total Price (Before Tax): </strong>
+                            <br className="d-md-none" />
+                            <span className="d-md-inline"> </span>
+                            ${formData.products.reduce((sum, product) => sum + product.priceWithoutTax, 0).toFixed(2)}
+                          </div>
                         </Col>
-                        <Col md="4">
-                          <strong>Total Price (With Tax): </strong>
-                          ${formData.products.reduce((sum, product) => sum + product.priceWithTax, 0).toFixed(2)}
+                        <Col xs="12" md="4">
+                          <div className="text-center text-md-start">
+                            <strong>Total Price (With Tax): </strong>
+                            <br className="d-md-none" />
+                            <span className="d-md-inline"> </span>
+                            ${formData.products.reduce((sum, product) => sum + product.priceWithTax, 0).toFixed(2)}
+                          </div>
                         </Col>
                       </Row>
                     </CardBody>
@@ -629,11 +649,12 @@ const AddShop = () => {
               </Row>
             )}
 
-            <div className="d-flex gap-2 mt-3">
+            <div className="d-flex flex-column flex-md-row gap-2 mt-3">
               <Button
                 color="primary"
                 type="submit"
                 disabled={isLoading}
+                className="w-100 w-md-auto"
               >
                 {isLoading ? <Spinner size="sm" /> : "Save Shop"}
               </Button>
@@ -641,6 +662,7 @@ const AddShop = () => {
                 color="secondary"
                 type="button"
                 onClick={handleCancel}
+                className="w-100 w-md-auto"
               >
                 Cancel
               </Button>

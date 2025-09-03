@@ -400,7 +400,7 @@ const TransactionPage = () => {
               <Plus size={12} className="me-1" />
               {showAddForm ? 'Cancel Add' : 'Add New Transaction'}
             </Button>
-          </div>
+            </div>
         </div>
 
         {showAddForm && (
@@ -413,68 +413,68 @@ const TransactionPage = () => {
                 <div className="row">
                   <div className="col-md-4 mb-2">
                     <Label>Description</Label>
-                    <Input
-                      value={newTransaction.description}
-                      onChange={e => handleInputChange("description", e)}
-                      placeholder="Description"
-                      required
-                    />
+                      <Input
+                        value={newTransaction.description}
+                        onChange={e => handleInputChange("description", e)}
+                        placeholder="Description"
+                        required
+                      />
                   </div>
                   <div className="col-md-4 mb-2">
                     <Label>Date</Label>
-                    <Flatpickr
-                      className="form-control"
-                      value={newTransaction.date}
-                      onChange={date => handleInputChange("date", { target: { value: date[0] } })}
-                      options={{ dateFormat: "Y-m-d" }}
-                      placeholder="Select Date"
-                      required
-                    />
+                      <Flatpickr
+                        className="form-control"
+                        value={newTransaction.date}
+                        onChange={date => handleInputChange("date", { target: { value: date[0] } })}
+                        options={{ dateFormat: "Y-m-d" }}
+                        placeholder="Select Date"
+                        required
+                      />
                   </div>
                   <div className="col-md-4 mb-2">
                     <Label>Amount</Label>
-                    <Input
-                      type="number"
-                      value={newTransaction.amount}
-                      onChange={e => handleInputChange("amount", e)}
-                      placeholder="Amount"
-                      required
-                      min="0"
-                    />
+                      <Input
+                        type="number"
+                        value={newTransaction.amount}
+                        onChange={e => handleInputChange("amount", e)}
+                        placeholder="Amount"
+                        required
+                        min="0"
+                      />
                   </div>
                 </div>
                 <div className="row">
                   <div className="col-md-6 mb-2">
                     <Label>Transaction Type</Label>
-                    <Input
-                      type="select"
-                      value={newTransaction.transactionType}
-                      onChange={e => handleInputChange("transactionType", e)}
-                      required
-                    >
-                      <option value="">--Select--</option>
-                      <option value="income">Income</option>
-                      <option value="expense">Expense</option>
-                    </Input>
+                      <Input
+                        type="select"
+                        value={newTransaction.transactionType}
+                        onChange={e => handleInputChange("transactionType", e)}
+                        required
+                      >
+                        <option value="">--Select--</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                      </Input>
                   </div>
                   <div className="col-md-6 mb-2">
                     <Label>Bank</Label>
-                    <Input
-                      type="select"
-                      value={newTransaction.bank}
-                      onChange={e => handleInputChange("bank", e)}
-                      required
-                    >
-                      <option value="">--Select--</option>
-                      <option value="BANK1">BANK1</option>
-                      <option value="BANK2">BANK2</option>
-                    </Input>
+                      <Input
+                        type="select"
+                        value={newTransaction.bank}
+                        onChange={e => handleInputChange("bank", e)}
+                        required
+                      >
+                        <option value="">--Select--</option>
+                        <option value="BANK1">BANK1</option>
+                        <option value="BANK2">BANK2</option>
+                      </Input>
                   </div>
-                </div>
+            </div>
                 <div className="d-flex gap-2 mt-3">
-                  <Button color="success" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <Spinner size="sm" /> : "Save Transaction"}
-                  </Button>
+            <Button color="success" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Spinner size="sm" /> : "Save Transaction"}
+            </Button>
                   <Button 
                     color="secondary" 
                     type="button"
@@ -483,7 +483,7 @@ const TransactionPage = () => {
                     Cancel
                   </Button>
                 </div>
-              </Form>
+          </Form>
             </CardBody>
           </Card>
         )}
@@ -498,7 +498,7 @@ const TransactionPage = () => {
                 <div className="row">
                   <div className="col-md-4 mb-2">
                     <Label>Description</Label>
-                    <Input
+                    <Input 
                       value={editingTransaction.description}
                       onChange={e => handleEditInputChange("description", e)}
                       placeholder="Description"
@@ -507,18 +507,18 @@ const TransactionPage = () => {
                   </div>
                   <div className="col-md-4 mb-2">
                     <Label>Date</Label>
-                    <Flatpickr
-                      className="form-control"
-                      value={editingTransaction.date}
-                      onChange={date => handleEditInputChange("date", { target: { value: date[0] } })}
-                      options={{ dateFormat: "Y-m-d" }}
+                      <Flatpickr
+                        className="form-control"
+                        value={editingTransaction.date}
+                        onChange={date => handleEditInputChange("date", { target: { value: date[0] } })}
+                        options={{ dateFormat: "Y-m-d" }}
                       placeholder="Select Date"
                       required
                     />
                   </div>
                   <div className="col-md-4 mb-2">
                     <Label>Amount</Label>
-                    <Input
+                    <Input 
                       type="number"
                       value={editingTransaction.amount}
                       onChange={e => handleEditInputChange("amount", e)}
@@ -531,27 +531,27 @@ const TransactionPage = () => {
                 <div className="row">
                   <div className="col-md-6 mb-2">
                     <Label>Transaction Type</Label>
-                    <Input
-                      type="select"
-                      value={editingTransaction.transactionType}
-                      onChange={e => handleEditInputChange("transactionType", e)}
+                      <Input 
+                        type="select"
+                        value={editingTransaction.transactionType}
+                        onChange={e => handleEditInputChange("transactionType", e)}
                       required
-                    >
-                      <option value="income">Income</option>
-                      <option value="expense">Expense</option>
-                    </Input>
+                      >
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                      </Input>
                   </div>
                   <div className="col-md-6 mb-2">
                     <Label>Bank</Label>
-                    <Input
-                      type="select"
-                      value={editingTransaction.bank}
-                      onChange={e => handleEditInputChange("bank", e)}
+                      <Input 
+                        type="select"
+                        value={editingTransaction.bank}
+                        onChange={e => handleEditInputChange("bank", e)}
                       required
-                    >
-                      <option value="BANK1">BANK1</option>
-                      <option value="BANK2">BANK2</option>
-                    </Input>
+                      >
+                        <option value="BANK1">BANK1</option>
+                        <option value="BANK2">BANK2</option>
+                      </Input>
                   </div>
                 </div>
                 <div className="d-flex gap-2 mt-3">

@@ -11,6 +11,9 @@ import {
   Plus,
   Users,
   Eye,
+  Menu,
+  Search,
+  User,
 } from "react-feather";
 import {
   useGetCentersQuery,
@@ -39,6 +42,9 @@ import {
   Badge,
   Table,
   Spinner,
+  CardHeader,
+  CardTitle,
+  CardBody,
 } from "reactstrap";
 import toast from "react-hot-toast";
 import EditUserModal from "./EditUserModal";
@@ -132,6 +138,7 @@ const CentersTable = () => {
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
 
   const handleModal = () => setModal(!modal);
   const handleEditModal = () => setEditModal(!editModal);
@@ -185,11 +192,22 @@ const CentersTable = () => {
     refetch();
   }, [refetch]);
 
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const columns = [
     {
       field: "id",
       headerName: "S.No",
-      width: 180,
+      width: isMobile ? 50 : 60,
+      minWidth: isMobile ? 50 : 60,
       renderCell: (params) => {
         const index = centers.findIndex(center => center._id === params.row._id);
         return (currentPage - 1) * itemsPerPage + index + 1;
@@ -198,48 +216,91 @@ const CentersTable = () => {
     {
       field: "centerName",
       headerName: "Center Name",
-      width: 250,
+      width: isMobile ? 120 : 200,
+      minWidth: isMobile ? 100 : 150,
+      flex: 1,
       sortable: true,
     },
     {
       field: "centerCode",
       headerName: "Center Code",
-      width: 250,
+      width: isMobile ? 100 : 150,
+      minWidth: isMobile ? 80 : 120,
       sortable: true,
     },
     
     {
       field: "actions",
       headerName: "Actions",
-      width: 330,
+      width: isMobile ? 150 : 200,
+      minWidth: isMobile ? 150 : 180,
       sortable: false,
               renderCell: (params) => (
-          <div className="d-flex mt-1">
-            <Eye
-              size={15}
-              style={{ cursor: "pointer" }}
-              onClick={() => handleViewUsersClick(params.row)}
-              className="ms-1"
-              title="View Users"
-            />
-            <Users size={15}
-            style={{ cursor: "pointer" }} 
-            onClick={() => handleAddUserClick(params.row)}
-            className="ms-1"
-            title="Add User"/>
-            <Trash 
-            style={{ cursor: "pointer" }}
-            onClick={() => handleDeleteClick(params.row._id)}
-            size={15}
-            className="ms-1"
-            title="Delete" />
-          <Edit
-            style={{ cursor: "pointer" }}
-              onClick={() => handleEditClick(params.row)}
-            size={15}
-              className="ms-1"
-              title="Edit"
-          />
+          <div className="d-flex flex-column flex-md-row gap-1 mt-1">
+            <Button
+              color="info"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewUsersClick(params.row);
+              }}
+              className="btn-sm"
+              style={{ 
+                fontSize: isMobile ? '8px' : '10px', 
+                padding: isMobile ? '1px 2px' : '2px 4px',
+                minWidth: isMobile ? '20px' : 'auto'
+              }}
+            >
+              <Eye size={isMobile ? 10 : 15} />
+            </Button>
+            <Button
+              color="success"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddUserClick(params.row);
+              }}
+              className="btn-sm"
+              style={{ 
+                fontSize: isMobile ? '8px' : '10px', 
+                padding: isMobile ? '1px 2px' : '2px 4px',
+                minWidth: isMobile ? '20px' : 'auto'
+              }}
+            >
+              <Users size={isMobile ? 10 : 15} />
+            </Button>
+            <Button
+              color="danger"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClick(params.row._id);
+              }}
+              className="btn-sm"
+              style={{ 
+                fontSize: isMobile ? '8px' : '10px', 
+                padding: isMobile ? '1px 2px' : '2px 4px',
+                minWidth: isMobile ? '20px' : 'auto'
+              }}
+            >
+              <Trash size={isMobile ? 10 : 15} />
+            </Button>
+            <Button
+              color="secondary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditClick(params.row);
+              }}
+              className="btn-sm"
+              style={{ 
+                fontSize: isMobile ? '8px' : '10px', 
+                padding: isMobile ? '1px 2px' : '2px 4px',
+                minWidth: isMobile ? '20px' : 'auto'
+              }}
+            >
+              <Edit size={isMobile ? 10 : 15} />
+            </Button>
         </div>
       ),
     },
@@ -285,79 +346,271 @@ const CentersTable = () => {
 
   return (
     <Fragment>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .centers-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header .d-flex {
+              min-height: 40px !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-search-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-search-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 340px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
       <div
-        className="container"
-        style={{ height: "calc(100vh - 100px)", overflow: "auto" }}
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
       >
-        <Card 
-          className="w-100" 
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '20px' : undefined,
+            right: isMobile ? '20px' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+                  <Card 
+          className="w-100 mobile-card" 
           style={{
             backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
             border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
-            color: isDarkTheme ? '#ffffff' : '#000000'
+            color: isDarkTheme ? '#ffffff' : '#000000',
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            maxWidth: isMobile ? '100vw' : '100%',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '100px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined
           }}
         >
-          <Row className="justify-content-end mx-0">
-            <Col
-              className="d-flex align-items-center justify-content-end mt-1"
+         
+          <CardBody className="mobile-card-body">
+            <div className="mobile-search-section">
+              <Row className="justify-content-center justify-content-md-end mx-0">
+                <Col
+                  className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end gap-2"
               md="6"
-              sm="12"
+                  xs="12"
             >
-              <div className="position-relative">
+                  <div className="position-relative w-100 w-md-auto">
               <Input
-                className="dataTable-filter mb-50"
+                      className="dataTable-filter w-100 mobile-search-input"
                 type="text"
                 id="search-input"
-                  placeholder="Search centers by name or code..."
+                      placeholder="Search centers by name or code..."
                 value={searchValue}
-                  onChange={handleSearch}
-                  style={{ 
-                    width: "250px",
-                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
-                    color: isDarkTheme ? '#ffffff' : '#000000',
-                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
-                  }}
-                />
-                {isSearching && (
-                  <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
-                    <Spinner size="sm" />
+                      onChange={handleSearch}
+                      style={{ 
+                        minWidth: "250px",
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
+                      }}
+                    />
+                    {isSearching && (
+                      <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
+                        <Spinner size="sm" />
+                      </div>
+                    )}
+                    {searchValue.trim() !== '' && !isSearching && (
+                      <small 
+                        className="position-absolute" 
+                        style={{ 
+                          bottom: '-20px', 
+                          left: '0',
+                          color: isDarkTheme ? '#a0aec0' : '#6b7280'
+                        }}
+                      >
+                        {filteredData.length} center(s) found
+                      </small>
+                    )}
                   </div>
-                )}
-                {searchValue.trim() !== '' && !isSearching && (
-                  <small 
-                    className="position-absolute" 
-                    style={{ 
-                      bottom: '-20px', 
-                      left: '0',
-                      color: isDarkTheme ? '#a0aec0' : '#6b7280'
-                    }}
-                  >
-                    {filteredData.length} center(s) found
-                  </small>
-                )}
-              </div>
 
               <Button
-                className="ms-2 mb-50 d-flex align-items-center"
+                className="d-flex align-items-center justify-content-center w-100 w-md-auto mobile-add-button"
                 color="primary"
                 onClick={handleModal}
-                style={{ minWidth: "150px" }}
+                style={{ 
+                  minWidth: isMobile ? "80px" : "150px",
+                  maxWidth: isMobile ? "100px" : "auto"
+                }}
               >
-                <Plus size={15} className="me-1" />
-                <span>Add Center</span>
+                <Plus size={15} />
+                {!isMobile && <span className="ms-1">Add Center</span>}
               </Button>
+
             </Col>
           </Row>
-          <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
-            <DataGrid
-              key={currentTheme} // Force re-render when theme changes
-              rows={data}
+            </div>
+            <div className="table-responsive mobile-table-container" style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+              <DataGrid
+                key={currentTheme} // Force re-render when theme changes
+                rows={data}
               columns={columns}
-              pageSize={10}
-              rowsPerPageOptions={[10]}
-              disableSelectionOnClick
-              autoHeight={false}
-              getRowId={(row) => row.id}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
+                disableSelectionOnClick
+                autoHeight={false}
+                getRowId={(row) => row.id}
                              sx={{
                  bgcolor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                  color: isDarkTheme ? '#ffffff !important' : '#000000 !important',
@@ -498,10 +751,56 @@ const CentersTable = () => {
                  '& .MuiDataGrid-virtualScrollerRenderZone': {
                    backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                  },
+                 // Mobile responsive styles
+                 '@media (max-width: 767.98px)': {
+                   fontSize: '11px !important',
+                   width: '100% !important',
+                   height: '100% !important',
+                   '& .MuiDataGrid-columnHeader': {
+                     fontSize: '9px !important',
+                     padding: '1px 2px !important',
+                     minHeight: '28px !important',
+                     fontWeight: '600 !important',
+                   },
+                   '& .MuiDataGrid-cell': {
+                     fontSize: '9px !important',
+                     padding: '1px 2px !important',
+                     minHeight: '28px !important',
+                   },
+                   '& .MuiDataGrid-main': {
+                     overflowX: 'auto !important',
+                     width: '100% !important',
+                   },
+                   '& .MuiDataGrid-columnHeaders': {
+                     minWidth: '450px !important',
+                   },
+                   '& .MuiDataGrid-virtualScroller': {
+                     minWidth: '450px !important',
+                   },
+                   '& .MuiDataGrid-footerContainer': {
+                     minWidth: '450px !important',
+                     fontSize: '9px !important',
+                   },
+                   '& .MuiDataGrid-row': {
+                     minHeight: '28px !important',
+                   },
+                   '& .MuiButton-root': {
+                     minWidth: 'auto !important',
+                     padding: '1px 2px !important',
+                     fontSize: '8px !important',
+                     minHeight: '20px !important',
+                   },
+                   '& .MuiDataGrid-root': {
+                     width: '100% !important',
+                     height: '100% !important',
+                   },
+                 },
                }}
             />
           </div>
+          </CardBody>
         </Card>
+        </div>
       </div>
       <AddNewModal open={modal} handleModal={handleModal} refetch={refetch} />
       {editModal && selectedCenter && (
