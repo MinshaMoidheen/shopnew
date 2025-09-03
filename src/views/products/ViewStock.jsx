@@ -467,11 +467,11 @@ const ViewStock = () => {
                 <Row>
                   <Col md="3" className="mb-2">
                     <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Remaining Quantity</Label>
-                    <Input
-                      type="number"
-                      value={editFormData.remainingQuantity || 0}
-                      onChange={(e) => handleEditFormChange('remainingQuantity', e.target.value)}
-                      min="0"
+                      <Input
+                        type="number"
+                        value={editFormData.remainingQuantity || 0}
+                        onChange={(e) => handleEditFormChange('remainingQuantity', e.target.value)}
+                        min="0"
                       style={{ 
                         backgroundColor: isDarkTheme ? '#4a5568' : '#ffffff',
                         color: isDarkTheme ? '#ffffff' : '#000000',
@@ -481,12 +481,12 @@ const ViewStock = () => {
                   </Col>
                   <Col md="3" className="mb-2">
                     <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Original Amount</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={editFormData.originalAmount || 0}
-                      onChange={(e) => handleEditFormChange('originalAmount', e.target.value)}
-                      min="0"
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={editFormData.originalAmount || 0}
+                        onChange={(e) => handleEditFormChange('originalAmount', e.target.value)}
+                        min="0"
                       style={{ 
                         backgroundColor: isDarkTheme ? '#4a5568' : '#ffffff',
                         color: isDarkTheme ? '#ffffff' : '#000000',
@@ -496,13 +496,13 @@ const ViewStock = () => {
                   </Col>
                   <Col md="2" className="mb-2">
                     <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Tax Rate (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={editFormData.taxRate || 0}
-                      onChange={(e) => handleEditFormChange('taxRate', e.target.value)}
-                      min="0"
-                      max="100"
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={editFormData.taxRate || 0}
+                        onChange={(e) => handleEditFormChange('taxRate', e.target.value)}
+                        min="0"
+                        max="100"
                       style={{ 
                         backgroundColor: isDarkTheme ? '#4a5568' : '#ffffff',
                         color: isDarkTheme ? '#ffffff' : '#000000',
@@ -512,11 +512,11 @@ const ViewStock = () => {
                   </Col>
                   <Col md="2" className="mb-2">
                     <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Quantity</Label>
-                    <Input
-                      type="number"
-                      value={editFormData.quantity || 0}
-                      onChange={(e) => handleEditFormChange('quantity', e.target.value)}
-                      min="0"
+                      <Input
+                        type="number"
+                        value={editFormData.quantity || 0}
+                        onChange={(e) => handleEditFormChange('quantity', e.target.value)}
+                        min="0"
                       style={{ 
                         backgroundColor: isDarkTheme ? '#4a5568' : '#ffffff',
                         color: isDarkTheme ? '#ffffff' : '#000000',
@@ -526,10 +526,10 @@ const ViewStock = () => {
                   </Col>
                   <Col md="2" className="mb-2">
                     <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Purchase Date</Label>
-                    <Input
-                      type="date"
-                      value={editFormData.purchaseDate || ''}
-                      onChange={(e) => handleEditFormChange('purchaseDate', e.target.value)}
+                      <Input
+                        type="date"
+                        value={editFormData.purchaseDate || ''}
+                        onChange={(e) => handleEditFormChange('purchaseDate', e.target.value)}
                       style={{ 
                         backgroundColor: isDarkTheme ? '#4a5568' : '#ffffff',
                         color: isDarkTheme ? '#ffffff' : '#000000',
@@ -539,24 +539,24 @@ const ViewStock = () => {
                   </Col>
                 </Row>
                 <div className="d-flex gap-2 mt-2">
-                  <Button
-                    color="success"
+                        <Button
+                          color="success"
                     type="submit"
                     disabled={isSubmitting}
-                    size="sm"
-                  >
+                          size="sm"
+                        >
                     {isSubmitting ? <Spinner size="sm" /> : <Save size={12} className="me-1" />}
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                  <Button
-                    color="secondary"
-                    onClick={handleEditCancel}
-                    disabled={isSubmitting}
+                        </Button>
+                        <Button
+                          color="secondary"
+                          onClick={handleEditCancel}
+                          disabled={isSubmitting}
                     size="sm"
-                  >
+                        >
                     <X size={12} className="me-1" />
-                    Cancel
-                  </Button>
+                          Cancel
+                        </Button>
                 </div>
               </Form>
             </CardBody>
@@ -571,8 +571,8 @@ const ViewStock = () => {
         ) : filteredStocks.length === 0 ? (
           <div className="text-center py-5">
             <p className="text-muted">No stock records found</p>
-          </div>
-        ) : (
+                      </div>
+                    ) : (
           <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
             <DataGrid
               key={currentTheme} // Force re-render when theme changes
@@ -726,8 +726,8 @@ const ViewStock = () => {
                 },
               }}
             />
-          </div>
-        )}
+                      </div>
+                    )}
 
         {filteredStocks.length > itemsPerPage && (
           <div className="d-flex justify-content-end mt-1">

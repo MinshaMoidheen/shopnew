@@ -768,9 +768,9 @@ const ProductTable = () => {
             <div className="row">
               <div className="col-md-3 mb-2">
                 <label className="form-label">Product Name</label>
-                <Input
+                      <Input
                   value={editingProduct.name}
-                  onChange={(e) => handleEditInputChange("name", e)}
+                        onChange={(e) => handleEditInputChange("name", e)}
                   placeholder="Name"
                   required
                 />
@@ -806,28 +806,28 @@ const ProductTable = () => {
               </div>
               <div className="col-md-3 mb-2">
                 <label className="form-label">Category</label>
-                <CreatableSelect
-                  options={categories.map((category) => ({
-                    label: category,
-                    value: category,
-                  }))}
+                        <CreatableSelect
+                          options={categories.map((category) => ({
+                            label: category,
+                            value: category,
+                          }))}
                   className="react-select"
-                  classNamePrefix="select"
-                  value={
-                    editingProduct.category
-                      ? {
-                        label: editingProduct.category,
-                        value: editingProduct.category,
-                      }
-                      : null
-                  }
-                  onChange={(selectedOption) =>
-                    handleEditInputChange("category", selectedOption)
-                  }
+                          classNamePrefix="select"
+                          value={
+                            editingProduct.category
+                              ? {
+                                label: editingProduct.category,
+                                value: editingProduct.category,
+                              }
+                              : null
+                          }
+                          onChange={(selectedOption) =>
+                            handleEditInputChange("category", selectedOption)
+                          }
                   onInputChange={(inputValue) => setCategorySearch(inputValue)}
                   placeholder="Select/Type Category"
-                  isClearable
-                  required
+                          isClearable
+                          required
                 />
               </div>
             </div>
@@ -1007,8 +1007,8 @@ const ProductTable = () => {
                 },
               }}
             />
-          </div>
-        )}
+                      </div>
+            )}
 
         {totalCount > itemsPerPage && (
           <div className="d-flex justify-content-end mt-1">

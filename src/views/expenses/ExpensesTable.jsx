@@ -823,108 +823,108 @@ const ExpensesTable = () => {
                 <div className="row">
                   <div className="col-md-3 mb-2">
                     <Label>Description</Label>
-                    <Input
-                      value={newExpense.description}
-                      onChange={e => handleInputChange("description", e)}
-                      placeholder="Description"
-                      required
-                    />
+                      <Input
+                        value={newExpense.description}
+                        onChange={e => handleInputChange("description", e)}
+                        placeholder="Description"
+                        required
+                      />
                   </div>
                   <div className="col-md-3 mb-2">
                     <Label>Date</Label>
-                    <Flatpickr
-                      className="form-control"
-                      value={newExpense.date}
-                      onChange={date => handleInputChange("date", { target: { value: date[0] } })}
-                      options={{ dateFormat: "Y-m-d" }}
-                      placeholder="Select Date"
-                      required
-                    />
+                      <Flatpickr
+                        className="form-control"
+                        value={newExpense.date}
+                        onChange={date => handleInputChange("date", { target: { value: date[0] } })}
+                        options={{ dateFormat: "Y-m-d" }}
+                        placeholder="Select Date"
+                        required
+                      />
                   </div>
                   <div className="col-md-3 mb-2">
                     <Label>Type</Label>
-                    <Input
-                      type="select"
-                      value={newExpense.expenseType}
-                      onChange={e => handleInputChange("expenseType", e)}
-                      required
-                      style={{
-                        backgroundColor: newExpense.expenseType === 'income' ? 'lightgreen' :
-                                       newExpense.expenseType === 'expense' ? '#f8d7da' : 'white'
-                      }}
-                    >
-                      <option value="income">Income</option>
-                      <option value="expense">Expense</option>
-                    </Input>
+                      <Input
+                        type="select"
+                        value={newExpense.expenseType}
+                        onChange={e => handleInputChange("expenseType", e)}
+                        required
+                         style={{
+    backgroundColor: newExpense.expenseType === 'income' ? 'lightgreen' :
+                     newExpense.expenseType === 'expense' ? '#f8d7da' : 'white'
+  }}
+                      >
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                      </Input>
                   </div>
                   <div className="col-md-3 mb-2">
                     <Label>Mode</Label>
-                    <Input
-                      type="select"
-                      value={newExpense.mode}
-                      onChange={e => handleInputChange("mode", e)}
-                      required
-                    >
-                      <option value="cash">Cash</option>
-                      <option value="bank">Bank</option>
-                    </Input>
+                      <Input
+                        type="select"
+                        value={newExpense.mode}
+                        onChange={e => handleInputChange("mode", e)}
+                        required
+                      >
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank</option>
+                      </Input>
                   </div>
                 </div>
                 <div className="row">
                   <div className="col-md-3 mb-2">
                     <Label>Amount</Label>
-                    <Input
-                      type="number"
-                      value={newExpense.amount}
-                      onChange={e => handleInputChange("amount", e)}
-                      placeholder="Amount"
-                      required
-                      min="0"
-                    />
+                      <Input
+                        type="number"
+                        value={newExpense.amount}
+                        onChange={e => handleInputChange("amount", e)}
+                        placeholder="Amount"
+                        required
+                        min="0"
+                      />
                   </div>
                   <div className="col-md-3 mb-2">
                     <Label>Center</Label>
-                    <Input
-                      type="select"
-                      value={centerState}
-                      onChange={(e) => setCenter(e.target.value)}
-                      required
-                    >
-                      <option value="">Select Center</option>
-                      {centersLoading ? (
-                        <option>Loading centers...</option>
-                      ) : centersError ? (
-                        <option>Error loading centers</option>
-                      ) : centersData?.data?.map(center => (
-                        <option key={center._id} value={center._id}>
-                          {center.centerName}
-                        </option>
-                      ))}
-                    </Input>
+                      <Input
+                        type="select"
+                        value={centerState}
+                        onChange={(e) => setCenter(e.target.value)}
+                        required
+                      >
+                        <option value="">Select Center</option>
+                        {centersLoading ? (
+                          <option>Loading centers...</option>
+                        ) : centersError ? (
+                          <option>Error loading centers</option>
+                        ) : centersData?.data?.map(center => (
+                          <option key={center._id} value={center._id}>
+                            {center.centerName}
+                          </option>
+                        ))}
+                      </Input>
                   </div>
                   <div className="col-md-3 mb-2">
                     <Label>Bank</Label>
-                    <Input
-                      type="select"
-                      value={newExpense.bank}
-                      onChange={e => handleInputChange("bank", e)}
-                      required={newExpense.mode === 'bank'}
-                      disabled={newExpense.mode === 'cash'}
-                      style={{
-                        backgroundColor: newExpense.mode === 'cash' ? '#f8f9fa' : 'white',
-                        cursor: newExpense.mode === 'cash' ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      <option value="">Select Bank</option>
-                      <option value="BANK1">Bank1</option>
-                      <option value="BANK2">Bank2</option>
-                    </Input>
-                  </div>
+                      <Input
+                        type="select"
+                        value={newExpense.bank}
+                        onChange={e => handleInputChange("bank", e)}
+                        required={newExpense.mode === 'bank'}
+                        disabled={newExpense.mode === 'cash'}
+                        style={{
+                          backgroundColor: newExpense.mode === 'cash' ? '#f8f9fa' : 'white',
+                          cursor: newExpense.mode === 'cash' ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        <option value="">Select Bank</option>
+                        <option value="BANK1">Bank1</option>
+                        <option value="BANK2">Bank2</option>
+                      </Input>
+            </div>
                 </div>
                 <div className="d-flex gap-2 mt-3">
-                  <Button color="success" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <Spinner size="sm" /> : "Save Transaction"}
-                  </Button>
+            <Button color="success" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Spinner size="sm" /> : "Save Transaction"}
+            </Button>
                   <Button 
                     color="secondary" 
                     type="button"
@@ -933,7 +933,7 @@ const ExpensesTable = () => {
                     Cancel
                   </Button>
                 </div>
-              </Form>
+          </Form>
             </CardBody>
           </Card>
         )}

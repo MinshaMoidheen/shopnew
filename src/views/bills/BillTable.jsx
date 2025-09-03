@@ -389,12 +389,12 @@ const BillTable = () => {
               Add New Bill
             </Button>
             {editingBill && (
-              <Button
+            <Button
                 color="secondary"
                 onClick={handleCancelEdit}
-              >
+            >
                 Cancel Edit
-              </Button>
+            </Button>
             )}
           </div>
           <div style={{ width: "300px" }}>
@@ -619,7 +619,7 @@ const BillTable = () => {
                   </div>
                 </div>
                 <div className="d-flex gap-2 mt-3">
-                  <Button
+                      <Button
                     color="success"
                     type="button"
                     onClick={() => {
@@ -636,8 +636,8 @@ const BillTable = () => {
                     onClick={handleCancelEdit}
                   >
                     Cancel Edit
-                  </Button>
-                </div>
+                      </Button>
+                    </div>
               </Form>
             </CardBody>
           </Card>

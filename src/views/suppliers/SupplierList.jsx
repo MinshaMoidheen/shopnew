@@ -470,7 +470,7 @@ const SupplierList = () => {
                       placeholder="Enter VAT Number"
                     />
                   </div>
-                </div>
+                    </div>
                 <div className="d-flex gap-2 mt-3">
                   <Button
                     color="success"
@@ -479,13 +479,13 @@ const SupplierList = () => {
                   >
                     {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
                   </Button>
-                  <Button
+                    <Button
                     color="secondary"
                     type="button"
                     onClick={handleCancelEdit}
                   >
                     Cancel Edit
-                  </Button>
+                    </Button>
                 </div>
               </Form>
             </CardBody>
