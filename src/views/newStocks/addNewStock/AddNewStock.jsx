@@ -45,6 +45,45 @@ const AddNewStock = () => {
   const [productOptions, setProductOptions] = useState([])
   const [initialOptionsLoaded, setInitialOptionsLoaded] = useState(false)
   const [suppliers, setSuppliers] = useState([])
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
+
+  // Get theme from localStorage
+  const getThemeFromStorage = () => {
+    const skin = localStorage.getItem('skin');
+    if (skin?.toLowerCase()?.includes('dark')) {
+      return 'dark';
+    }
+    return 'light';
+  };
+  
+  const [currentTheme, setCurrentTheme] = useState(getThemeFromStorage());
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCurrentTheme(getThemeFromStorage());
+    };
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for theme changes (in case localStorage is updated in same tab)
+    const interval = setInterval(() => {
+      const newTheme = getThemeFromStorage();
+      if (newTheme !== currentTheme) {
+        setCurrentTheme(newTheme);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [currentTheme]);
+
+  // Helper function for theme comparison - more robust
+  const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
+                      currentTheme?.toLowerCase()?.includes("dark");
 
   const { data: productsData, refetch: refetchProducts } = useGetProductsQuery({
     limit: 1000,
@@ -89,6 +128,16 @@ const AddNewStock = () => {
       setSuppliers(suppliersData.data || [])
     }
   }, [suppliersData])
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadProductOptions = async (inputValue) => {
     try {
@@ -360,29 +409,309 @@ const AddNewStock = () => {
   }
 
   return (
-    <Card>
-      <CardHeader className="d-flex justify-content-between align-items-center">
-        <CardTitle tag="h4">Add New Stock</CardTitle>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .add-stock-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-stock-item {
+              margin-bottom: 1rem !important;
+              padding: 0.75rem !important;
+              border-radius: 8px !important;
+            }
+            .mobile-stock-header {
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              margin-bottom: 0.75rem !important;
+            }
+            .mobile-stock-title {
+              font-size: 16px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-remove-container {
+              margin-bottom: 0.5rem !important;
+              padding: 0 !important;
+            }
+            .mobile-remove-btn {
+              font-size: 12px !important;
+              padding: 0.25rem 0.5rem !important;
+              width: 200px;
+              margin: 0 !important;
+            }
+            .mobile-form-label {
+              font-size: 14px !important;
+              font-weight: 500 !important;
+              margin-bottom: 0.25rem !important;
+            }
+            .mobile-form-control {
+              font-size: 16px !important;
+              padding: 0.5rem !important;
+              margin-bottom: 0.75rem !important;
+              border-radius: 8px !important;
+              border: 1px solid #e2e8f0 !important;
+            }
+            .mobile-form-control:focus {
+              border-color: #007bff !important;
+              box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+            }
+            .mobile-select {
+              font-size: 16px !important;
+              margin-bottom: 0.75rem !important;
+            }
+            .mobile-add-btn {
+              width: 100% !important;
+              margin-bottom: 1rem !important;
+              font-size: 16px !important;
+              padding: 0.75rem !important;
+            }
+            .mobile-submit-buttons {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 0.5rem !important;
+              margin-top: 1rem !important;
+            }
+            .mobile-submit-btn, .mobile-reset-btn {
+              width: 100% !important;
+              font-size: 16px !important;
+              padding: 0.75rem !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-lg-4 {
+              padding-left: 0.25rem !important;
+              padding-right: 0.25rem !important;
+              margin-bottom: 0.5rem !important;
+              width: 100% !important;
+              flex: 0 0 100% !important;
+              max-width: 100% !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '100px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '90vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '40px' : undefined,
+            left: isMobile ? '10px' : undefined,
+            right: isMobile ? '10px' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={`d-flex justify-content-between align-items-center ${isMobile ? 'mobile-card-header' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-stock-title' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' ,marginTop:isMobile? "20px":""}}
+              >
+                Add New Stock
+              </CardTitle>
       </CardHeader>
-      <CardBody>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
         <Form onSubmit={handleSubmit(onSubmit)}>
           {stocks.map((stock, index) => (
-            <div key={stock.id} className="border rounded p-2 mb-2">
-              <div className="d-flex justify-content-between mb-1">
-                <h6>Stock {index + 1}</h6>
-                {stocks.length > 1 && (
+            <div 
+              key={stock.id} 
+              className={`border rounded p-2 mb-2 ${isMobile ? 'mobile-stock-item' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#f8f9fa',
+                border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <div className={`d-flex justify-content-between mb-1 ${isMobile ? 'mobile-stock-header' : ''}`}>
+                <h6 className={isMobile ? 'mobile-stock-title' : ''} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
+                  Stock {index + 1}
+                </h6>
+              </div>
+              {stocks.length > 1 && (
+                <div className={`d-flex ${isMobile ? 'justify-content-center' : 'justify-content-end'} mb-2 ${isMobile ? 'mobile-remove-container' : ''}`}>
                   <Button
                     color="danger"
                     size="sm"
                     onClick={() => removeStockField(stock.id)}
+                    className={isMobile ? 'mobile-remove-btn' : ''}
+                    style={{ 
+                      fontSize: isMobile ? '12px' : '14px',
+                      padding: isMobile ? '0.25rem 0.5rem' : '0.375rem 0.75rem'
+                    }}
                   >
                     Remove
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
               <Row>
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`productId-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`productId-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Product Name:
                   </Label>
                   <Controller
@@ -400,12 +729,43 @@ const AddNewStock = () => {
                           handleProductSelect(option, index)
                         }}
                         isClearable
-                        className={errors?.stocks?.[index]?.productId ? 'is-invalid' : ''}
+                        className={`${errors?.stocks?.[index]?.productId ? 'is-invalid' : ''} ${isMobile ? 'mobile-select' : ''}`}
                         classNamePrefix="select"
                         isSearchable
                         noOptionsMessage={() => "No products found"}
                         placeholder="Select products"
                         cacheOptions
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                            borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                            color: isDarkTheme ? '#ffffff' : '#000000',
+                            fontSize: isMobile ? '16px' : '14px',
+                            minHeight: isMobile ? '48px' : '38px',
+                            width:isMobile ?"300px" :"auto"
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                            color: isDarkTheme ? '#ffffff' : '#000000'
+                          }),
+                          option: (base, state) => ({
+                            ...base,
+                            backgroundColor: state.isFocused 
+                              ? (isDarkTheme ? '#4a5568' : '#f7fafc') 
+                              : (isDarkTheme ? '#2d3748' : '#ffffff'),
+                            color: isDarkTheme ? '#ffffff' : '#000000'
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: isDarkTheme ? '#ffffff' : '#000000'
+                          }),
+                          input: (base) => ({
+                            ...base,
+                            color: isDarkTheme ? '#ffffff' : '#000000'
+                          })
+                        }}
                       />
                     )}
                   />
@@ -416,8 +776,12 @@ const AddNewStock = () => {
                   )}
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`quantity-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`quantity-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Quantity:
                   </Label>
                   <Controller
@@ -435,6 +799,14 @@ const AddNewStock = () => {
                         placeholder="Enter Quantity"
                         type="number"
                         min="1"
+                        className={isMobile ? 'mobile-form-control' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? '48px' : '38px'
+                        }}
                       />
                     )}
                   />
@@ -445,8 +817,12 @@ const AddNewStock = () => {
                   )}
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`warehouse-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`warehouse-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Warehouse:
                   </Label>
                   <Controller
@@ -459,9 +835,17 @@ const AddNewStock = () => {
                         type="select"
                         id={`warehouse-${stock.id}`}
                         invalid={!!errors?.stocks?.[index]?.warehouse}
+                        className={isMobile ? 'mobile-form-control' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? '48px' : '38px'
+                        }}
                       >
-                        <option value="QAHWA">QAHWA</option>
-                        <option value="ATTARA">ATTARA</option>
+                        <option value="QAHWA" style={{ backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}>QAHWA</option>
+                        <option value="ATTARA" style={{ backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}>ATTARA</option>
                       </Input>
                     )}
                   />
@@ -472,8 +856,12 @@ const AddNewStock = () => {
                   )}
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`purchaseAmount-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`purchaseAmount-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Purchase Amount:
                   </Label>
                   <Controller
@@ -488,6 +876,14 @@ const AddNewStock = () => {
                         type="number"
                         step="0.01"
                         placeholder="Enter Purchase Amount"
+                        className={isMobile ? 'mobile-form-control' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? '48px' : '38px'
+                        }}
                       />
                     )}
                   />
@@ -498,8 +894,12 @@ const AddNewStock = () => {
                   )}
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`tax-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`tax-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Tax:
                   </Label>
                   <Controller
@@ -513,13 +913,25 @@ const AddNewStock = () => {
                         step="0.01"
                         placeholder="Enter Tax Percentage"
                         min="0"
+                        className={isMobile ? 'mobile-form-control' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? '48px' : '38px'
+                        }}
                       />
                     )}
                   />
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`paidAmount-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`paidAmount-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Total Amount:
                   </Label>
                   <Input
@@ -537,11 +949,23 @@ const AddNewStock = () => {
                       return subtotal + taxAmount
                     })()}
                     disabled
+                    className={isMobile ? 'mobile-form-control' : ''}
+                    style={{
+                      backgroundColor: isDarkTheme ? '#374151' : '#f3f4f6',
+                      borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                      color: isDarkTheme ? '#9ca3af' : '#6b7280',
+                      fontSize: isMobile ? '16px' : '14px',
+                      minHeight: isMobile ? '48px' : '38px'
+                    }}
                   />
                 </Col>
 
-                <Col lg="4" md="6" className="mb-1">
-                  <Label className="form-label" for={`purchaseDate-${stock.id}`}>
+                <Col lg="4" md="6" xs="12" className="mb-1">
+                  <Label 
+                    className={`form-label ${isMobile ? 'mobile-form-label' : ''}`} 
+                    for={`purchaseDate-${stock.id}`}
+                    style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+                  >
                     Purchase Date:
                   </Label>
                   <Controller
@@ -555,6 +979,14 @@ const AddNewStock = () => {
                         invalid={!!errors?.stocks?.[index]?.purchaseDate}
                         type="date"
                         placeholder="Enter Purchase Date"
+                        className={isMobile ? 'mobile-form-control' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? '48px' : '38px'
+                        }}
                       />
                     )}
                   />
@@ -642,18 +1074,28 @@ const AddNewStock = () => {
           <Button
             type="button"
             color="secondary"
-            className="mb-2"
+            className={`mb-2 ${isMobile ? 'mobile-add-btn' : ''}`}
             onClick={addStockField}
+            style={{
+              width: isMobile ? '100%' : 'auto',
+              fontSize: isMobile ? '16px' : '14px',
+              padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+            }}
           >
             Add Another Stock
           </Button>
 
-          <div className="d-flex justify-content-end mt-2">
+          <div className={`d-flex ${isMobile ? 'mobile-submit-buttons' : 'justify-content-end'} mt-2`}>
             <Button
-              className="me-1"
+              className={isMobile ? 'mobile-submit-btn' : 'me-1'}
               color="primary"
               type="submit"
               disabled={isLoading}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '16px' : '14px',
+                padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+              }}
             >
               {isLoading ? <Spinner size="sm" /> : "Submit"}
             </Button>
@@ -662,6 +1104,12 @@ const AddNewStock = () => {
               color="secondary"
               type="reset"
               onClick={handleReset}
+              className={isMobile ? 'mobile-reset-btn' : ''}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '16px' : '14px',
+                padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+              }}
             >
               Reset
             </Button>
@@ -669,6 +1117,9 @@ const AddNewStock = () => {
         </Form>
       </CardBody>
     </Card>
+        </div>
+      </div>
+    </>
   )
 }
 
