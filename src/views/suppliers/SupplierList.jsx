@@ -41,6 +41,7 @@ const SupplierList = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [invoiceSearchTerm, setInvoiceSearchTerm] = useState("");
   const [currentTheme, setCurrentTheme] = useState('light');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const [updateSupplier] = useUpdateSupplierMutation();
   const [deleteSupplier] = useDeleteSupplierMutation();
   const [showTransactionForm, setShowTransactionForm] = useState(false);
@@ -89,6 +90,16 @@ const SupplierList = () => {
 
   const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
                       currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data, isLoading, refetch } = useGetAllSuppliersQuery({
     page: currentPage,
@@ -250,7 +261,8 @@ const SupplierList = () => {
     {
       field: "id",
       headerName: "S.No",
-      width: 80,
+      width: isMobile ? 50 : 80,
+      minWidth: isMobile ? 50 : 80,
       renderCell: (params) => {
         const index = suppliers.findIndex(supplier => supplier._id === params.row._id);
         return (currentPage - 1) * itemsPerPage + index + 1;
@@ -259,28 +271,33 @@ const SupplierList = () => {
     {
       field: "supplierName",
       headerName: "Supplier Name",
-      width: 200,
+      width: isMobile ? 120 : 200,
+      minWidth: isMobile ? 100 : 150,
+      flex: 1,
       sortable: true,
     },
     {
       field: "location",
       headerName: "Location",
-      width: 200,
+      width: isMobile ? 100 : 200,
+      minWidth: isMobile ? 80 : 150,
       sortable: true,
     },
     {
       field: "vatNumber",
       headerName: "VAT Number",
-      width: 170,
+      width: isMobile ? 100 : 170,
+      minWidth: isMobile ? 80 : 120,
       sortable: true,
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 350,
+      width: isMobile ? 200 : 350,
+      minWidth: isMobile ? 180 : 300,
       sortable: false,
       renderCell: (params) => (
-        <div className="d-flex mt-1">
+        <div className="d-flex flex-column flex-md-row gap-1 mt-1">
           <Button
             color="primary"
             size="sm"
@@ -288,10 +305,19 @@ const SupplierList = () => {
               e.stopPropagation();
               navigate(`/apps/suppliers/view/${params.row._id}`);
             }}
-            style={{ marginRight: '4px' }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Eye size={12} className="me-1" />
-            View
+            <Eye size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "View"}
           </Button>
           <Button
             color="secondary"
@@ -300,10 +326,19 @@ const SupplierList = () => {
               e.stopPropagation();
               handleEditClick(params.row);
             }}
-            style={{ marginRight: '4px' }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Edit size={12} className="me-1" />
-            Edit
+            <Edit size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "Edit"}
           </Button>
           <Button
             color="danger"
@@ -312,9 +347,19 @@ const SupplierList = () => {
               e.stopPropagation();
               handleDeleteClick(params.row._id);
             }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Trash size={12} className="me-1" />
-            Delete
+            <Trash size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "Delete"}
           </Button>
         </div>
       ),
@@ -330,59 +375,301 @@ const SupplierList = () => {
   console.log("selectedRow", selectedRow);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle tag="h4">Suppliers List</CardTitle>
-        {/* <div className="text-end">
-          <div><strong>Total Due Amount:</strong> ₹{totals.dueAmount}</div>
-          <div><strong>Total Paid Amount:</strong> ₹{totals.paidAmount}</div>
-        </div> */}
-      </CardHeader>
-      <CardBody>
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <div className="d-flex gap-2">
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .suppliers-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-search-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-search-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 340px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '0' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={`d-flex justify-content-between align-items-center ${isMobile ? 'mobile-card-header' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Suppliers List
+              </CardTitle>
+            </CardHeader>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+        <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center mb-2 gap-2`}>
+          <div className={`d-flex ${isMobile ? 'flex-column w-100' : 'gap-2'}`}>
             <Button
               color="primary"
               onClick={() => setShowAddForm(!showAddForm)}
+              className={isMobile ? 'mobile-add-button w-100' : ''}
+              style={{ 
+                minWidth: isMobile ? "120px" : "auto",
+                maxWidth: isMobile ? "100%" : "auto",
+                fontSize: isMobile ? '14px' : '14px'
+              }}
             >
               <Plus size={15} className="me-1" />
-              {showAddForm ? "Cancel Add" : "Add New Supplier"}
+              {showAddForm ? "Cancel Add" : (isMobile ? "Add" : "Add New Supplier")}
             </Button>
-            {editingSupplier && (
+            {/* {editingSupplier && (
               <>
                 <Button
                   color="success"
                   onClick={handleUpdate}
                   disabled={isSubmitting}
+                  className={isMobile ? 'mobile-add-button w-100' : ''}
+                  style={{ 
+                    minWidth: isMobile ? "100px" : "auto",
+                    maxWidth: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? '14px' : '14px'
+                  }}
                 >
                   {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
                 </Button>
-                <Button color="secondary" onClick={handleCancelEdit}>
+                <Button 
+                  color="secondary" 
+                  onClick={handleCancelEdit}
+                  className={isMobile ? 'mobile-add-button w-100' : ''}
+                  style={{ 
+                    minWidth: isMobile ? "80px" : "auto",
+                    maxWidth: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? '14px' : '14px'
+                  }}
+                >
                   Cancel Edit
                 </Button>
               </>
-            )}
+            )} */}
           </div>
-          <div className="d-flex gap-2" style={{ width: '400px' }}>
-            <div>
-              <Label for="supplierSearch">Supplier Search:</Label>
+          <div className={`d-flex ${isMobile ? 'flex-column w-100' : 'gap-2'}`} style={{ width: isMobile ? '100%' : '400px' }}>
+            <div className={isMobile ? 'w-100 mb-2' : ''}>
+              <Label for="supplierSearch" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Supplier Search:</Label>
               <Input
                 id="supplierSearch"
                 type="text"
                 placeholder="Search by supplier name or vat number..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className={isMobile ? 'mobile-search-input' : ''}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               />
             </div>
-            <div>
-              <Label for="invoiceSearch">Invoice Search:</Label>
+            <div className={isMobile ? 'w-100' : ''}>
+              <Label for="invoiceSearch" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Invoice Search:</Label>
               <Input
                 id="invoiceSearch"
                 type="text"
-                className=""
+                className={isMobile ? 'mobile-search-input' : ''}
                 placeholder="Search by invoice value..."
                 value={invoiceSearchTerm}
                 onChange={(e) => setInvoiceSearchTerm(e.target.value)}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               />
             </div>
           </div>
@@ -391,29 +678,47 @@ const SupplierList = () => {
         {showAddForm && (
           <Form onSubmit={handleAddSupplier} className="mb-3">
             <div className="row">
-              <div className="col-md-3 mb-2">
-                <label className="form-label">Supplier Name</label>
+              <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Supplier Name</label>
                 <Input
                   value={newSupplier.supplierName}
                   onChange={(e) => handleInputChange("supplierName", e)}
                   placeholder="Enter Supplier Name"
                   required
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
-              <div className="col-md-3 mb-2">
-                <label className="form-label">Location</label>
+              <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Location</label>
                 <Input
                   value={newSupplier.location}
                   onChange={(e) => handleInputChange("location", e)}
                   placeholder="Enter Location"
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
-              <div className="col-md-3 mb-2">
-                <label className="form-label">VAT Number</label>
+              <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>VAT Number</label>
                 <Input
                   value={newSupplier.vatNumber}
                   onChange={(e) => handleInputChange("vatNumber", e)}
                   placeholder="Enter VAT Number"
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
             </div>
@@ -421,71 +726,104 @@ const SupplierList = () => {
               color="success"
               type="submit"
               disabled={isSubmitting}
-              className="me-2"
+              className={`me-2 ${isMobile ? 'w-100' : ''}`}
+              style={{ 
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '16px' : '14px',
+                padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+              }}
             >
               {isSubmitting ? <Spinner size="sm" /> : "Save Supplier"}
             </Button>
-            {/* <Button
-              outline
-              color="secondary"
-              type="button"
-              onClick={handleReset}
-              className="mt-2"
-            >
-              Reset
-            </Button> */}
           </Form>
         )}
 
         {editingSupplier && (
-          <Card className="mb-3">
-            <CardHeader>
-              <CardTitle tag="h5">Edit Supplier</CardTitle>
+          <Card 
+            className="mb-3" 
+            style={{
+              backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000'
+            }}
+          >
+            <CardHeader style={{ backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa' }}>
+              <CardTitle tag="h5" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Edit Supplier</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardBody style={{ backgroundColor: isDarkTheme ? '#23263a' : '#ffffff' }}>
               <Form onSubmit={handleUpdate}>
                 <div className="row">
-                  <div className="col-md-4 mb-2">
-                    <label className="form-label">Supplier Name</label>
+                  <div className={`col-md-4 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Supplier Name</label>
                     <Input
                       value={editingSupplier.supplierName}
                       onChange={(e) => handleEditInputChange("supplierName", e)}
                       placeholder="Enter Supplier Name"
                       required
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-4 mb-2">
-                    <label className="form-label">Location</label>
+                  <div className={`col-md-4 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Location</label>
                     <Input
                       value={editingSupplier.location}
                       onChange={(e) => handleEditInputChange("location", e)}
                       placeholder="Enter Location"
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-4 mb-2">
-                    <label className="form-label">VAT Number</label>
+                  <div className={`col-md-4 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>VAT Number</label>
                     <Input
                       value={editingSupplier.vatNumber}
                       onChange={(e) => handleEditInputChange("vatNumber", e)}
                       placeholder="Enter VAT Number"
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                    </div>
-                <div className="d-flex gap-2 mt-3">
+                </div>
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'gap-2'} mt-3`}>
                   <Button
                     color="success"
                     type="submit"
                     disabled={isSubmitting}
+                    className={isMobile ? 'w-100 mb-2' : ''}
+                    style={{ 
+                      width: isMobile ? '100%' : 'auto',
+                      fontSize: isMobile ? '16px' : '14px',
+                      padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+                    }}
                   >
                     {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
                   </Button>
-                    <Button
+                  <Button
                     color="secondary"
                     type="button"
                     onClick={handleCancelEdit}
+                    className={isMobile ? 'w-100' : ''}
+                    style={{ 
+                      width: isMobile ? '100%' : 'auto',
+                      fontSize: isMobile ? '16px' : '14px',
+                      padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+                    }}
                   >
                     Cancel Edit
-                    </Button>
+                  </Button>
                 </div>
               </Form>
             </CardBody>
@@ -502,7 +840,7 @@ const SupplierList = () => {
             <p className="text-muted">No suppliers found</p>
           </div>
         ) : (
-          <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+          <div className="mobile-table-container" style={{ height: 400, width: '100%', marginBottom: "40px" }}>
             <DataGrid
               key={currentTheme}
               rows={gridData}
@@ -652,12 +990,59 @@ const SupplierList = () => {
                 '& .MuiDataGrid-virtualScrollerRenderZone': {
                   backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                 },
+                // Mobile responsive styles
+                '@media (max-width: 767.98px)': {
+                  fontSize: '11px !important',
+                  width: '100% !important',
+                  height: '100% !important',
+                  '& .MuiDataGrid-columnHeader': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                    fontWeight: '600 !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiDataGrid-main': {
+                    overflowX: 'auto !important',
+                    width: '100% !important',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-virtualScroller': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    minWidth: '450px !important',
+                    fontSize: '9px !important',
+                  },
+                  '& .MuiDataGrid-row': {
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiButton-root': {
+                    minWidth: 'auto !important',
+                    padding: '1px 2px !important',
+                    fontSize: '8px !important',
+                    minHeight: '20px !important',
+                  },
+                  '& .MuiDataGrid-root': {
+                    width: '100% !important',
+                    height: '100% !important',
+                  },
+                },
               }}
             />
           </div>
         )}
-      </CardBody>
-    </Card>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -44,6 +44,7 @@ const ViewSupplierTransaction = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('light');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   
   const [transaction, setTransaction] = useState({
     amount: "",
@@ -76,6 +77,16 @@ const ViewSupplierTransaction = () => {
 
   const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
                       currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (isLoading) {
     return (
@@ -230,36 +241,43 @@ const ViewSupplierTransaction = () => {
     {
       field: "id",
       headerName: "S.No",
-      width: 80,
+      width: isMobile ? 50 : 80,
+      minWidth: isMobile ? 50 : 80,
       renderCell: (params) => params.row.index + 1,
     },
     {
       field: "amount",
-      headerName: "Paid/Due Amount",
-      width: 250,
+      headerName: "Amount",
+      width: isMobile ? 100 : 250,
+      minWidth: isMobile ? 80 : 200,
+      flex: 1,
       sortable: true,
       renderCell: (params) => (
-        <span className="fw-bold">${params.row.amount || 0}</span>
+        <span className="fw-bold" style={{ fontSize: isMobile ? '10px' : '14px' }}>
+          ${params.row.amount || 0}
+        </span>
       ),
     },
     {
       field: "paymentDate",
-      headerName: "Payment Date",
-      width: 150,
+      headerName: "Date",
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
-        <span>
+        <span style={{ fontSize: isMobile ? '10px' : '14px' }}>
           {params.row.paymentDate ? new Date(params.row.paymentDate).toLocaleDateString() : 'N/A'}
         </span>
       ),
     },
     {
       field: "modeOfPayment",
-      headerName: "Mode of Payment",
-      width: 150,
+      headerName: "Mode",
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
-        <Badge color="info" className="text-white">
+        <Badge color="info" className="text-white" style={{ fontSize: isMobile ? '8px' : '12px' }}>
           {params.row.modeOfPayment}
         </Badge>
       ),
@@ -267,16 +285,23 @@ const ViewSupplierTransaction = () => {
     {
       field: "invoice",
       headerName: "Invoice",
-      width: 150,
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
+      renderCell: (params) => (
+        <span style={{ fontSize: isMobile ? '10px' : '14px' }}>
+          {params.row.invoice || 'N/A'}
+        </span>
+      ),
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 220,
+      width: isMobile ? 150 : 220,
+      minWidth: isMobile ? 130 : 180,
       sortable: false,
       renderCell: (params) => (
-        <div className="d-flex mt-1">
+        <div className="d-flex flex-column flex-md-row gap-1 mt-1">
           <Button
             color="secondary"
             size="sm"
@@ -284,10 +309,19 @@ const ViewSupplierTransaction = () => {
               e.stopPropagation();
               handleEditClick(params.row);
             }}
-            style={{ marginRight: '4px' }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Edit size={12} className="me-1" />
-            Edit
+            <Edit size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "Edit"}
           </Button>
           <Button
             color="danger"
@@ -296,9 +330,19 @@ const ViewSupplierTransaction = () => {
               e.stopPropagation();
               handleDeleteClick(params.row.index);
             }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Trash size={12} className="me-1" />
-            Delete
+            <Trash size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "Delete"}
           </Button>
         </div>
       ),
@@ -313,151 +357,484 @@ const ViewSupplierTransaction = () => {
   })) : [];
 
   return (
-    <Card>
-      <CardHeader className="d-flex justify-content-between align-items-center">
-        <CardTitle tag="h4">Transactions for {supplier.supplierName}</CardTitle>
-        <Button color="secondary" onClick={() => navigate("/apps/suppliers")}>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .transactions-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-amount-cards {
+              display: flex !important;
+              flex-direction: row !important;
+              gap: 0.25rem !important;
+              margin-bottom: 1rem !important;
+              justify-content: space-between !important;
+            }
+            .mobile-amount-card {
+              flex: 1 !important;
+              text-align: center !important;
+              padding: 0.25rem !important;
+              font-size: 10px !important;
+              min-width: auto !important;
+              margin: 0 !important;
+            }
+            .mobile-form-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-form-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-button-row {
+              display: flex !important;
+              flex-direction: row !important;
+              gap: 0.25rem !important;
+              width: 100% !important;
+              justify-content: space-between !important;
+            }
+            .mobile-button-row .btn {
+              flex: 1 !important;
+              font-size: 12px !important;
+              padding: 0.375rem 0.25rem !important;
+              min-width: auto !important;
+              max-width: none !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 500px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center ${isMobile ? 'mobile-card-header' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Transactions for {supplier.supplierName}
+              </CardTitle>
+              <Button 
+                color="secondary" 
+                onClick={() => navigate("/apps/suppliers")}
+                className={isMobile ? 'w-100 mt-2' : ''}
+                style={{ 
+                  width: isMobile ? '100%' : 'auto',
+                  fontSize: isMobile ? '14px' : '14px',
+                  padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                }}
+              >
           Back to Suppliers
         </Button>
       </CardHeader>
-      <CardBody>
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <div className="d-flex gap-2">
-            <Button
-              color="info"
-              onClick={() => setShowTransactionForm(!showTransactionForm)}
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
             >
-              <Plus size={15} className="me-1" />
-              {showTransactionForm ? "Cancel Transaction" : "Add Transaction"}
-            </Button>
-            {editingTransaction && (
-              <>
-                <Button
-                  color="success"
-                  onClick={handleSaveEdit}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
-                </Button>
-                <Button color="secondary" onClick={handleCancelEdit}>
-                  Cancel Edit
-                </Button>
-              </>
-            )}
-          </div>
+        <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center mb-2 gap-2`}>
+          {isMobile ? (
+            <div className="mobile-button-row w-100">
+              <Button
+                color="info"
+                onClick={() => setShowTransactionForm(!showTransactionForm)}
+                className="btn"
+                style={{ 
+                  fontSize: '12px',
+                  padding: '0.375rem 0.25rem'
+                }}
+              >
+                <Plus size={12} className="me-1" />
+                {showTransactionForm ? "Cancel" : "Add"}
+              </Button>
+              {editingTransaction && (
+                <>
+                  <Button
+                    color="success"
+                    onClick={handleSaveEdit}
+                    disabled={isSubmitting}
+                    className="btn"
+                    style={{ 
+                      fontSize: '12px',
+                      padding: '0.375rem 0.25rem'
+                    }}
+                  >
+                    {isSubmitting ? <Spinner size="sm" /> : "Save"}
+                  </Button>
+                  <Button 
+                    color="secondary" 
+                    onClick={handleCancelEdit}
+                    className="btn"
+                    style={{ 
+                      fontSize: '12px',
+                      padding: '0.375rem 0.25rem'
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="d-flex gap-2">
+              <Button
+                color="info"
+                onClick={() => setShowTransactionForm(!showTransactionForm)}
+                style={{ 
+                  minWidth: "120px",
+                  fontSize: '14px'
+                }}
+              >
+                <Plus size={15} className="me-1" />
+                {showTransactionForm ? "Cancel Transaction" : "Add Transaction"}
+              </Button>
+              {editingTransaction && (
+                <>
+                  <Button
+                    color="success"
+                    onClick={handleSaveEdit}
+                    disabled={isSubmitting}
+                    style={{ 
+                      minWidth: "100px",
+                      fontSize: '14px'
+                    }}
+                  >
+                    {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
+                  </Button>
+                  <Button 
+                    color="secondary" 
+                    onClick={handleCancelEdit}
+                    style={{ 
+                      minWidth: "80px",
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancel Edit
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="d-flex justify-content-around align-items-center my-2">
+        <div className={`d-flex ${isMobile ? 'mobile-amount-cards' : 'justify-content-around'} align-items-center my-2`}>
           <div
-            className="mb-2"
+            className={`${isMobile ? 'mobile-amount-card' : 'mb-2'}`}
             style={{
-              background: "#ffe5e5",
-              color: "#b30000",
+              background: isDarkTheme ? "#4a1a1a" : "#ffe5e5",
+              color: isDarkTheme ? "#ff6b6b" : "#b30000",
               borderRadius: 4,
-              padding: "4px 16px",
+              padding: isMobile ? "4px 2px" : "4px 16px",
               display: "inline-block",
-              minWidth: 120,
-              textAlign: "right",
+              minWidth: isMobile ? "auto" : 120,
+              textAlign: isMobile ? "center" : "right",
               fontWeight: 600,
+              fontSize: isMobile ? "10px" : "14px",
+              width: isMobile ? "auto" : "auto",
+              flex: isMobile ? 1 : "none"
             }}
           >
-            Remaining Amount: {data?.totalRemainingAmount}
+            {isMobile ? "Rem:" : "Remaining:"} ${data?.totalRemainingAmount || 0}
           </div>
           <div
-            className="mb-2"
+            className={`${isMobile ? 'mobile-amount-card' : 'mb-2'}`}
             style={{
-              background: "#e5ffe5",
-              color: "#00b300",
+              background: isDarkTheme ? "#1a4a1a" : "#e5ffe5",
+              color: isDarkTheme ? "#6bff6b" : "#00b300",
               borderRadius: 4,
-              padding: "4px 16px",
+              padding: isMobile ? "4px 2px" : "4px 16px",
               display: "inline-block",
-              minWidth: 120,
-              textAlign: "right",
+              minWidth: isMobile ? "auto" : 120,
+              textAlign: isMobile ? "center" : "right",
               fontWeight: 600,
+              fontSize: isMobile ? "10px" : "14px",
+              width: isMobile ? "auto" : "auto",
+              flex: isMobile ? 1 : "none"
             }}
           >
-            Due Amount: {data?.totalDueAmount}
+            {isMobile ? "Due:" : "Due:"} ${data?.totalDueAmount || 0}
           </div>
           <div
-            className="mb-2"
+            className={`${isMobile ? 'mobile-amount-card' : 'mb-2'}`}
             style={{
-              background: "#ffe5e5",
-              color: "#b30000",
+              background: isDarkTheme ? "#4a1a1a" : "#ffe5e5",
+              color: isDarkTheme ? "#ff6b6b" : "#b30000",
               borderRadius: 4,
-              padding: "4px 16px",
+              padding: isMobile ? "4px 2px" : "4px 16px",
               display: "inline-block",
-              minWidth: 120,
-              textAlign: "right",
+              minWidth: isMobile ? "auto" : 120,
+              textAlign: isMobile ? "center" : "right",
               fontWeight: 600,
+              fontSize: isMobile ? "10px" : "14px",
+              width: isMobile ? "auto" : "auto",
+              flex: isMobile ? 1 : "none"
             }}
           >
-            Paid Amount: {data?.totalPaidAmount}
+            {isMobile ? "Paid:" : "Paid:"} ${data?.totalPaidAmount || 0}
           </div>
         </div>
 
         {editingTransaction && (
-          <Card className="mb-3">
-            <CardHeader>
-              <CardTitle tag="h5">Edit Transaction</CardTitle>
+          <Card 
+            className="mb-3" 
+            style={{
+              backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000'
+            }}
+          >
+            <CardHeader style={{ backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa' }}>
+              <CardTitle tag="h5" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Edit Transaction</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardBody style={{ backgroundColor: isDarkTheme ? '#23263a' : '#ffffff' }}>
               <Form onSubmit={handleSaveEdit}>
                 <div className="row">
-                  <div className="col-md-3 mb-2">
-                    <Label>Paid/Due Amount</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Paid/Due Amount</Label>
                     <Input
                       type="number"
                       value={editingTransaction.amount}
                       onChange={(e) => setEditingTransaction(prev => ({ ...prev, amount: e.target.value }))}
                       required
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Payment Date</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Payment Date</Label>
                     <Input
                       type="date"
                       value={editingTransaction.paymentDate}
                       onChange={(e) => setEditingTransaction(prev => ({ ...prev, paymentDate: e.target.value }))}
                       required
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Mode of Payment</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Mode of Payment</Label>
                     <Input
                       type="select"
                       value={editingTransaction.modeOfPayment}
                       onChange={(e) => setEditingTransaction(prev => ({ ...prev, modeOfPayment: e.target.value }))}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     >
                       <option value="cash">Cash</option>
                       <option value="bank">Bank</option>
                       <option value="credit">Credit</option>
                     </Input>
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Invoice</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Invoice</Label>
                     <Input
                       type="text"
                       value={editingTransaction.invoice}
                       onChange={(e) => setEditingTransaction(prev => ({ ...prev, invoice: e.target.value }))}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
                 </div>
-                {/* <div className="d-flex gap-2 mt-3">
-                  <Button
-                    color="success"
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
-                  </Button>
-                  <Button
-                    color="secondary"
-                    type="button"
-                    onClick={handleCancelEdit}
-                  >
-                    Cancel Edit
-                  </Button>
-                </div> */}
               </Form>
             </CardBody>
           </Card>
@@ -497,8 +874,8 @@ const ViewSupplierTransaction = () => {
             }}
           >
             <div className="row">
-              <div className="col-md-2 mb-1">
-                <Label>Paid/Due Amount</Label>
+              <div className={`col-md-2 ${isMobile ? 'col-12' : ''} mb-1`}>
+                <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Paid/Due Amount</Label>
                 <Input
                   type="number"
                   value={transaction.amount}
@@ -509,10 +886,17 @@ const ViewSupplierTransaction = () => {
                     })
                   }
                   required
+                  className={isMobile ? 'mobile-form-input' : ''}
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
-              <div className="col-md-2 mb-1">
-                <Label>Payment Date</Label>
+              <div className={`col-md-2 ${isMobile ? 'col-12' : ''} mb-1`}>
+                <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Payment Date</Label>
                 <Input
                   type="date"
                   value={transaction.paymentDate}
@@ -523,10 +907,17 @@ const ViewSupplierTransaction = () => {
                     })
                   }
                   required
+                  className={isMobile ? 'mobile-form-input' : ''}
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
-              <div className="col-md-2 mb-1">
-                <Label>Mode of Payment</Label>
+              <div className={`col-md-2 ${isMobile ? 'col-12' : ''} mb-1`}>
+                <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Mode of Payment</Label>
                 <Input
                   type="select"
                   value={transaction.modeOfPayment}
@@ -536,14 +927,21 @@ const ViewSupplierTransaction = () => {
                       modeOfPayment: e.target.value,
                     })
                   }
+                  className={isMobile ? 'mobile-form-input' : ''}
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 >
                   <option value="cash">Cash</option>
                   <option value="bank">Bank</option>
                   <option value="credit">Credit</option>
                 </Input>
               </div>
-              <div className="col-md-2 mb-1">
-                <Label>Invoice</Label>
+              <div className={`col-md-2 ${isMobile ? 'col-12' : ''} mb-1`}>
+                <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Invoice</Label>
                 <Input
                   type="text"
                   value={transaction.invoice}
@@ -553,6 +951,13 @@ const ViewSupplierTransaction = () => {
                       invoice: e.target.value,
                     })
                   }
+                  className={isMobile ? 'mobile-form-input' : ''}
+                  style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                    fontSize: isMobile ? '16px' : '14px'
+                  }}
                 />
               </div>
             </div>
@@ -560,6 +965,12 @@ const ViewSupplierTransaction = () => {
               color="success"
               type="submit"
               disabled={isTransactionLoading}
+              className={isMobile ? 'w-100' : ''}
+              style={{ 
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '16px' : '14px',
+                padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+              }}
             >
               {isTransactionLoading ? (
                 <Spinner size="sm" />
@@ -575,7 +986,7 @@ const ViewSupplierTransaction = () => {
             <p className="text-muted">No transactions found</p>
           </div>
         ) : (
-          <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+          <div className="mobile-table-container" style={{ height: 400, width: '100%', marginBottom: "40px" }}>
             <DataGrid
               key={currentTheme}
               rows={gridData}
@@ -725,16 +1136,59 @@ const ViewSupplierTransaction = () => {
                 '& .MuiDataGrid-virtualScrollerRenderZone': {
                   backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                 },
+                // Mobile responsive styles
+                '@media (max-width: 767.98px)': {
+                  fontSize: '11px !important',
+                  width: '100% !important',
+                  height: '100% !important',
+                  '& .MuiDataGrid-columnHeader': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                    fontWeight: '600 !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiDataGrid-main': {
+                    overflowX: 'auto !important',
+                    width: '100% !important',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-virtualScroller': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    minWidth: '450px !important',
+                    fontSize: '9px !important',
+                  },
+                  '& .MuiDataGrid-row': {
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiButton-root': {
+                    minWidth: 'auto !important',
+                    padding: '1px 2px !important',
+                    fontSize: '8px !important',
+                    minHeight: '20px !important',
+                  },
+                  '& .MuiDataGrid-root': {
+                    width: '100% !important',
+                    height: '100% !important',
+                  },
+                },
               }}
             />
           </div>
         )}
-
-        
-
-        
       </CardBody>
     </Card>
+        </div>
+      </div>
+    </>
   );
 };
 
