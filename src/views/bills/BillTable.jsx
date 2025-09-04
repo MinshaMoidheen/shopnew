@@ -49,6 +49,7 @@ const BillTable = () => {
   const [searchPage, setSearchPage] = useState(1)
   const [currentTheme, setCurrentTheme] = useState('light')
   const [editingBill, setEditingBill] = useState(null)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
 
   // Filter states
   const [endDate, setEndDate] = useState("")
@@ -189,51 +190,62 @@ const BillTable = () => {
     {
       field: "id",
       headerName: "S.No",
-      width: 80,
+      width: isMobile ? 50 : 80,
+      minWidth: isMobile ? 50 : 80,
       renderCell: (params) => params.row.index + 1,
     },
     {
       field: "customerName",
       headerName: "Customer / Staff",
-      width: 200,
+      width: isMobile ? 120 : 200,
+      minWidth: isMobile ? 100 : 150,
+      flex: 1,
       sortable: true,
     },
     {
       field: "date",
       headerName: "Date",
-      width: 150,
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
-        <span>
+        <span style={{ fontSize: isMobile ? '10px' : '14px' }}>
           {params.row.date ? new Date(params.row.date).toLocaleDateString() : 'N/A'}
         </span>
       ),
     },
     {
       field: "totalAmount",
-      headerName: "Total Amount",
-      width: 150,
+      headerName: "Amount",
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
-        <span className="fw-bold">${params.row.totalAmount || 0}</span>
+        <span className="fw-bold" style={{ fontSize: isMobile ? '10px' : '14px' }}>
+          ${params.row.totalAmount || 0}
+        </span>
       ),
     },
     {
       field: "centerName",
       headerName: "Center",
-      width: 150,
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
-        <span>{params.row.centerId?.centerName || 'N/A'}</span>
+        <span style={{ fontSize: isMobile ? '10px' : '14px' }}>
+          {params.row.centerId?.centerName || 'N/A'}
+        </span>
       ),
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 250,
+      width: isMobile ? 150 : 250,
+      minWidth: isMobile ? 130 : 200,
       sortable: false,
       renderCell: (params) => (
-        <div className="d-flex mt-1">
+        <div className="d-flex flex-column flex-md-row gap-1 mt-1">
           <Button
             color="primary"
             size="sm"
@@ -241,23 +253,20 @@ const BillTable = () => {
               e.stopPropagation();
               handleViewBill(params.row._id);
             }}
-            style={{ marginRight: '4px' }}
-          >
-            <Eye size={12} className="me-1" />
-            View
-          </Button>
-          {/* <Button
-            color="secondary"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditClick(params.row);
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
             }}
-            style={{ marginRight: '4px' }}
           >
-            <Edit size={12} className="me-1" />
-            Edit
-          </Button> */}
+            <Eye size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "View"}
+          </Button>
           <Button
             color="danger"
             size="sm"
@@ -265,9 +274,19 @@ const BillTable = () => {
               e.stopPropagation();
               handleDeleteClick(params.row._id);
             }}
+            className={isMobile ? 'd-flex align-items-center justify-content-center' : ''}
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto',
+              marginRight: '4px',
+              display: isMobile ? 'flex' : 'inline-block',
+              alignItems: isMobile ? 'center' : 'auto',
+              justifyContent: isMobile ? 'center' : 'auto'
+            }}
           >
-            <Trash size={12} className="me-1" />
-            Delete
+            <Trash size={isMobile ? 10 : 12} className={!isMobile ? "me-1" : ""} />
+            {!isMobile && "Delete"}
           </Button>
         </div>
       ),
@@ -302,6 +321,16 @@ const BillTable = () => {
     }
   }, [refetch, refetchSearch, searchParams, debouncedBillSearchTerm])
 
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (isLoadingData) {
     return (
       <div
@@ -316,16 +345,228 @@ const BillTable = () => {
   console.log("bills", bills)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle tag="h4">Bills List</CardTitle>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .bills-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-search-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-search-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 340px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={isMobile ? 'mobile-card-header' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Bills List
+              </CardTitle>
       </CardHeader>
-      <CardBody>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
         <Row className="mx-0 mt-1 mb-2">
-          <Col md="3" sm="12" className="mb-1">
-            <Label for="startDate">Date</Label>
+          <Col md="3" sm="12" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+            <Label for="startDate" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Date</Label>
             <Flatpickr
-              className="form-control"
+              className={`form-control ${isMobile ? 'mobile-search-input' : ''}`}
               id="startDate"
               value={startDate}
               onChange={(date) => setStartDate(date[0])}
@@ -336,17 +577,30 @@ const BillTable = () => {
               }}
               placeholder="Select Date"
               required
+              style={{
+                backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                fontSize: isMobile ? '16px' : '14px'
+              }}
             />
           </Col>
 
-          <Col md="3" sm="12" className="mb-1">
-            <Label for="center">Center</Label>
+          <Col md="3" sm="12" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+            <Label for="center" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Center</Label>
             <Input
               type="select"
               id="center"
               value={centerState}
               onChange={(e) => setCenter(e.target.value)}
               required
+              className={isMobile ? 'mobile-search-input' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                fontSize: isMobile ? '16px' : '14px'
+              }}
             >
               <option value="">Select Center</option>
               {centersLoading ? (
@@ -363,10 +617,17 @@ const BillTable = () => {
             </Input>
           </Col>
 
-          <Col md="3" sm="12" className="mb-1 d-flex align-items-end">
+          <Col md="3" sm="12" className={`mb-1 d-flex align-items-end ${isMobile ? 'col-12' : ''}`}>
+            <div className="d-flex w-100 gap-2">
             <Button
               color="primary"
-              className="w-100 me-1"
+                className={`${isMobile ? 'mobile-add-button' : ''}`}
+                style={{
+                  fontSize: isMobile ? '14px' : '14px',
+                  padding: isMobile ? '0.5rem' : '0.375rem 0.75rem',
+                  flex: '1',
+                  minHeight: '38px'
+                }}
             // onClick={handleSearch}
             // disabled={!startDate || !centerState}
             >
@@ -374,45 +635,77 @@ const BillTable = () => {
             </Button>
             <Button
               color="secondary"
-              className="w-100"
+                className={`${isMobile ? 'mobile-add-button' : ''}`}
+                style={{
+                  fontSize: isMobile ? '14px' : '14px',
+                  padding: isMobile ? '0.5rem' : '0.375rem 0.75rem',
+                  flex: '1',
+                  minHeight: '38px'
+                }}
             //  onClick={handleClearFilters}
             >
               Clear
             </Button>
+            </div>
           </Col>
         </Row>
 
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <div className="d-flex gap-2">
-            <Button color="primary" onClick={() => navigate("/apps/bills/add")}>
-              <Plus size={15} className="me-1" />
-              Add New Bill
+        <div className={`d-flex ${isMobile ? 'flex-row' : 'justify-content-between'} align-items-center mb-2 gap-2`}>
+          <div className={`d-flex ${isMobile ? 'flex-row gap-2' : 'gap-2'}`} style={{ width: isMobile ? 'auto' : 'auto' }}>
+            <Button 
+              color="primary" 
+              onClick={() => navigate("/apps/bills/add")}
+              className={isMobile ? 'mobile-add-button' : ''}
+              style={{
+                minWidth: isMobile ? "80px" : "auto",
+                maxWidth: isMobile ? "120px" : "auto",
+                fontSize: isMobile ? '12px' : '14px',
+                flex: isMobile ? '0 0 auto' : 'none'
+              }}
+            >
+              <Plus size={isMobile ? 12 : 15} className="me-1" />
+              {isMobile ? "Add" : "Add New Bill"}
             </Button>
             {editingBill && (
             <Button
                 color="secondary"
                 onClick={handleCancelEdit}
-            >
-                Cancel Edit
+                className={isMobile ? 'mobile-add-button' : ''}
+                style={{
+                  minWidth: isMobile ? "80px" : "auto",
+                  maxWidth: isMobile ? "100px" : "auto",
+                  fontSize: isMobile ? '12px' : '14px',
+                  flex: isMobile ? '0 0 auto' : 'none'
+                }}
+              >
+                Cancel
             </Button>
             )}
           </div>
-          <div style={{ width: "300px" }}>
+          <div className={isMobile ? 'flex-grow-1' : ''} style={{ width: isMobile ? 'auto' : '300px', flex: isMobile ? '1' : 'none' }}>
             <Input
               type="text"
               placeholder="Search bills by customer name..."
               value={billSearchTerm}
               onChange={(e) => setBillSearchTerm(e.target.value)}
+              className={isMobile ? 'mobile-search-input' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                fontSize: isMobile ? '14px' : '14px',
+                width: isMobile ? '100%' : '100%'
+              }}
             />
           </div>
         </div>
 
         {gridData.length === 0 ? (
           <div className="text-center py-5">
-            <p className="text-muted">No bills found</p>
+            <p className="text-muted" style={{ color: isDarkTheme ? '#a0aec0' : '#6b7280' }}>No bills found</p>
           </div>
         ) : (
-          <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+          <div className={isMobile ? 'mobile-table-container' : ''} style={{ height: 400, width: '100%', marginBottom: "40px" }}>
             <DataGrid
               key={currentTheme}
               rows={gridData}
@@ -562,51 +855,126 @@ const BillTable = () => {
                 '& .MuiDataGrid-virtualScrollerRenderZone': {
                   backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                 },
+                // Mobile responsive styles
+                '@media (max-width: 767.98px)': {
+                  fontSize: '11px !important',
+                  width: '100% !important',
+                  height: '100% !important',
+                  '& .MuiDataGrid-columnHeader': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                    fontWeight: '600 !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiDataGrid-main': {
+                    overflowX: 'auto !important',
+                    width: '100% !important',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-virtualScroller': {
+                    minWidth: '450px !important',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    minWidth: '450px !important',
+                    fontSize: '9px !important',
+                  },
+                  '& .MuiDataGrid-row': {
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiButton-root': {
+                    minWidth: 'auto !important',
+                    padding: '1px 2px !important',
+                    fontSize: '8px !important',
+                    minHeight: '20px !important',
+                  },
+                  '& .MuiDataGrid-root': {
+                    width: '100% !important',
+                    height: '100% !important',
+                  },
+                },
               }}
             />
           </div>
         )}
 
         {editingBill && (
-          <Card className="mb-3">
-            <CardHeader>
-              <CardTitle tag="h5">Edit Bill</CardTitle>
+          <Card 
+            className="mb-3" 
+            style={{
+              backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000'
+            }}
+          >
+            <CardHeader style={{ backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa' }}>
+              <CardTitle tag="h5" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Edit Bill</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardBody style={{ backgroundColor: isDarkTheme ? '#23263a' : '#ffffff' }}>
               <Form>
                 <div className="row">
-                  <div className="col-md-3 mb-2">
-                    <Label>Customer Name</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Customer Name</Label>
                     <Input
                       type="text"
                       value={editingBill.customerName || ''}
                       onChange={(e) => setEditingBill(prev => ({ ...prev, customerName: e.target.value }))}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Date</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Date</Label>
                     <Input
                       type="date"
                       value={editingBill.date ? new Date(editingBill.date).toISOString().split('T')[0] : ''}
                       onChange={(e) => setEditingBill(prev => ({ ...prev, date: e.target.value }))}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Total Amount</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Total Amount</Label>
                     <Input
                       type="number"
                       value={editingBill.totalAmount || ''}
                       onChange={(e) => setEditingBill(prev => ({ ...prev, totalAmount: e.target.value }))}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
                     />
                   </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Center</Label>
+                  <div className={`col-md-3 ${isMobile ? 'col-12' : ''} mb-2`}>
+                    <Label style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Center</Label>
                     <Input
                       type="select"
                       value={editingBill.centerId?._id || ''}
                       onChange={(e) => {
                         const selectedCenter = centersData?.data?.find(center => center._id === e.target.value);
                         setEditingBill(prev => ({ ...prev, centerId: selectedCenter }));
+                      }}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
                       }}
                     >
                       <option value="">Select Center</option>
@@ -618,7 +986,7 @@ const BillTable = () => {
                     </Input>
                   </div>
                 </div>
-                <div className="d-flex gap-2 mt-3">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'gap-2'} mt-3`}>
                       <Button
                     color="success"
                     type="button"
@@ -627,6 +995,12 @@ const BillTable = () => {
                       toast.success("Bill updated successfully");
                       setEditingBill(null);
                     }}
+                    className={isMobile ? 'w-100 mb-2' : ''}
+                    style={{
+                      width: isMobile ? '100%' : 'auto',
+                      fontSize: isMobile ? '16px' : '14px',
+                      padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+                    }}
                   >
                     Save Changes
                   </Button>
@@ -634,6 +1008,12 @@ const BillTable = () => {
                     color="secondary"
                     type="button"
                     onClick={handleCancelEdit}
+                    className={isMobile ? 'w-100' : ''}
+                    style={{
+                      width: isMobile ? '100%' : 'auto',
+                      fontSize: isMobile ? '16px' : '14px',
+                      padding: isMobile ? '0.75rem' : '0.375rem 0.75rem'
+                    }}
                   >
                     Cancel Edit
                       </Button>
@@ -644,6 +1024,9 @@ const BillTable = () => {
         )}
       </CardBody>
     </Card>
+        </div>
+      </div>
+    </>
   )
 }
 

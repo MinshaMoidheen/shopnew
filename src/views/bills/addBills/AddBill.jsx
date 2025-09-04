@@ -45,6 +45,8 @@ const AddBill = () => {
   const [centerState, setCenter] = useState("")
   // Add this state to track selected product names for each item
   const [selectedProductNames, setSelectedProductNames] = useState({})
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
+  const [currentTheme, setCurrentTheme] = useState('light')
 
   const { data: productsData, refetch: refetchProducts } = useGetProductsQuery({
     page: searchPage,
@@ -85,6 +87,41 @@ const AddBill = () => {
       loadInitialData()
     }
   }, [])
+
+  // Get theme from localStorage
+  useEffect(() => {
+    const getThemeFromStorage = () => {
+      const skin = localStorage.getItem('skin');
+      if (skin?.toLowerCase()?.includes('dark')) {
+        return 'dark';
+      }
+      return 'light';
+    };
+    
+    setCurrentTheme(getThemeFromStorage());
+    
+    const interval = setInterval(() => {
+      const newTheme = getThemeFromStorage();
+      if (newTheme !== currentTheme) {
+        setCurrentTheme(newTheme);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentTheme]);
+
+  const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
+                      currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Debounced search function for when user types
   const debouncedSearch = debounce(async (inputValue) => {
@@ -402,15 +439,244 @@ const AddBill = () => {
   }
 
   return (
-    <Card>
-      <CardHeader className="d-flex justify-content-between align-items-center">
-        <CardTitle tag="h4">Create New Bill</CardTitle>
-      </CardHeader>
-      <CardBody>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .addbill-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 120px) !important;
+              overflow: auto !important;
+            }
+            .mobile-form-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-button {
+              width: 100% !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+              margin-bottom: 0.5rem !important;
+            }
+            .mobile-item-card {
+              padding: 0.75rem !important;
+              margin-bottom: 0.75rem !important;
+              border-radius: 8px !important;
+            }
+            .mobile-item-header {
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              margin-bottom: 0.5rem !important;
+            }
+            .mobile-item-title {
+              font-size: 14px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-remove-container {
+              margin-bottom: 0.5rem !important;
+              padding: 0 !important;
+            }
+            .mobile-remove-btn {
+              font-size: 12px !important;
+              padding: 0.25rem 0.5rem !important;
+              width: 200px;
+              margin: 0 !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={isMobile ? 'mobile-card-header' : 'd-flex justify-content-between align-items-center'}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Create New Bill
+              </CardTitle>
+            </CardHeader>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row className="mb-2">
-            <Col lg="3" md="6">
-              <Label className="form-label" for="customerName">
+            <Col lg="3" md="6" className={isMobile ? 'col-12' : ''}>
+              <Label className="form-label" for="customerName" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                 Customer Name:
               </Label>
               <Controller
@@ -423,6 +689,13 @@ const AddBill = () => {
                     id="customerName"
                     placeholder="Enter Customer Name"
                     invalid={!!errors?.customerName}
+                    className={isMobile ? 'mobile-form-input' : ''}
+                    style={{
+                      backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                      fontSize: isMobile ? '16px' : '14px'
+                    }}
                   />
                 )}
               />
@@ -430,8 +703,8 @@ const AddBill = () => {
                 <small className="text-danger">{errors.customerName.message}</small>
               )}
             </Col>
-            <Col lg="2" md="6">
-              <Label className="form-label" for="date">
+            <Col lg="2" md="6" className={isMobile ? 'col-12' : ''}>
+              <Label className="form-label" for="date" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                 Date:
               </Label>
               <Controller
@@ -443,12 +716,19 @@ const AddBill = () => {
                     type="date"
                     id="date"
                     invalid={!!errors?.date}
+                    className={isMobile ? 'mobile-form-input' : ''}
+                    style={{
+                      backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                      fontSize: isMobile ? '16px' : '14px'
+                    }}
                   />
                 )}
               />
             </Col>
-            <Col lg="3" md="6">
-              <Label className="form-label" for="centerId">
+            <Col lg="3" md="6" className={isMobile ? 'col-12' : ''}>
+              <Label className="form-label" for="centerId" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                 Center:
               </Label>
               <Input
@@ -458,6 +738,13 @@ const AddBill = () => {
                 onChange={(e) => setCenter(e.target.value)}
                 required
                 invalid={!!errors?.centerState}
+                className={isMobile ? 'mobile-form-input' : ''}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               >
                 <option value="">Select Center</option>
                 {centersLoading ? (
@@ -470,11 +757,10 @@ const AddBill = () => {
                   </option>
                 ))}
               </Input>
-
             </Col>
 
-            <Col lg="2" md="6" className="mb-1">
-              <Label className="form-label" for="offPercentage">
+            <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+              <Label className="form-label" for="offPercentage" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                 Discount %:
               </Label>
               <Controller
@@ -492,6 +778,13 @@ const AddBill = () => {
                     step="0.01"
                     invalid={!!errors?.offPercentage}
                     placeholder="Enter Discount %"
+                    className={isMobile ? 'mobile-form-input' : ''}
+                    style={{
+                      backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                      fontSize: isMobile ? '16px' : '14px'
+                    }}
                     onChange={(e) => {
                       field.onChange(e)
                       calculateTotalAmount()
@@ -504,8 +797,8 @@ const AddBill = () => {
               )}
             </Col>
 
-            <Col lg="2" md="6" className="mb-1">
-              <Label className="form-label" for="totalAmount">
+            <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+              <Label className="form-label" for="totalAmount" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                 Total Amount:
               </Label>
               <Controller
@@ -518,6 +811,13 @@ const AddBill = () => {
                     type="number"
                     step="0.01"
                     disabled
+                    className={isMobile ? 'mobile-form-input' : ''}
+                    style={{
+                      backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                      fontSize: isMobile ? '16px' : '14px'
+                    }}
                   />
                 )}
               />
@@ -596,22 +896,40 @@ const AddBill = () => {
 
 
           {items?.map((item, index) => (
-            <div key={item.id} className="border rounded p-2 mb-2">
-              <div className="d-flex justify-content-between mb-1">
-                <h6>Item {index + 1}</h6>
-                {items.length > 1 && (
+            <div 
+              key={item.id} 
+              className={`border rounded p-2 mb-2 ${isMobile ? 'mobile-item-card' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <div className={`d-flex justify-content-between mb-1 ${isMobile ? 'mobile-item-header' : ''}`}>
+                <h6 className={isMobile ? 'mobile-item-title' : ''} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
+                  Item {index + 1}
+                </h6>
+              </div>
+              {items.length > 1 && (
+                <div className={`d-flex ${isMobile ? 'justify-content-center' : 'justify-content-end'} mb-2 ${isMobile ? 'mobile-remove-container' : ''}`}>
                   <Button
                     color="danger"
                     size="sm"
                     onClick={() => removeItemField(item.id)}
+                    className={isMobile ? 'mobile-remove-btn' : ''}
+                    style={{
+                      fontSize: isMobile ? '12px' : '12px',
+                      padding: isMobile ? '0.25rem 0.5rem' : '0.375rem 0.75rem',
+                      width: isMobile ? '200px' : 'auto'
+                    }}
                   >
-                    Remove
+                    {isMobile ? 'Del' : 'Remove'}
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
               <Row>
-                <Col lg="3" md="6" className="mb-1">
-                  <Label className="form-label" for={`productId-${item.id}`}>
+                <Col lg="3" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+                  <Label className="form-label" for={`productId-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                     Product:
                   </Label>
                   <Controller
@@ -649,10 +967,10 @@ const AddBill = () => {
                   )}
                 </Col>
 
-                <Col lg="2" md="6" className="mb-1">
-  <Label className="form-label" for={`quantity-${item.id}`}>
-    Quantity:
-  </Label>
+                <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+                  <Label className="form-label" for={`quantity-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
+                    Quantity:
+                  </Label>
   <Controller
     name={`items.${index}.quantity`}
     control={control}
@@ -665,23 +983,30 @@ const AddBill = () => {
       }
     }}
     render={({ field }) => (
-      <Input
-        {...field}
-        id={`quantity-${item.id}`}
-        type="number"
-        min="0.1"
-        step="0.1" // ✅ Enables decimal input in browser
-        invalid={!!errors?.items?.[index]?.quantity}
-        placeholder="Quantity"
-        onChange={(e) => {
-          field.onChange(e)
-          const quantity = parseFloat(e.target.value) || 0
-          const price = parseFloat(watch(`items.${index}.sellingPrice`)) || 0
-          const newTotal = quantity * price
-          setValue(`items.${index}.total`, newTotal.toFixed(2)) // optional: round total to 2 decimals
-          calculateTotalAmount()
-        }}
-      />
+                            <Input
+                        {...field}
+                        id={`quantity-${item.id}`}
+                        type="number"
+                        min="0.1"
+                        step="0.1" // ✅ Enables decimal input in browser
+                        invalid={!!errors?.items?.[index]?.quantity}
+                        placeholder="Quantity"
+                        className={isMobile ? 'mobile-form-input' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                          fontSize: isMobile ? '16px' : '14px'
+                        }}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          const quantity = parseFloat(e.target.value) || 0
+                          const price = parseFloat(watch(`items.${index}.sellingPrice`)) || 0
+                          const newTotal = quantity * price
+                          setValue(`items.${index}.total`, newTotal.toFixed(2)) // optional: round total to 2 decimals
+                          calculateTotalAmount()
+                        }}
+                      />
     )}
   />
   {errors?.items?.[index]?.quantity && (
@@ -692,8 +1017,8 @@ const AddBill = () => {
 </Col>
 
 
-                <Col lg="2" md="6" className="mb-1">
-                  <Label className="form-label" for={`unit-${item.id}`}>
+                <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+                  <Label className="form-label" for={`unit-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                     Unit:
                   </Label>
                   <Controller
@@ -707,13 +1032,20 @@ const AddBill = () => {
                         invalid={!!errors?.items?.[index]?.unit}
                         placeholder="Unit"
                         disabled
+                        className={isMobile ? 'mobile-form-input' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                          fontSize: isMobile ? '16px' : '14px'
+                        }}
                       />
                     )}
                   />
                 </Col>
 
-                <Col lg="2" md="6" className="mb-1">
-                  <Label className="form-label" for={`sellingPrice-${item.id}`}>
+                <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+                  <Label className="form-label" for={`sellingPrice-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                     Selling Price:
                   </Label>
                   <Controller
@@ -727,6 +1059,13 @@ const AddBill = () => {
                         step="0.01"
                         invalid={!!errors?.items?.[index]?.sellingPrice}
                         placeholder="Enter Price"
+                        className={isMobile ? 'mobile-form-input' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                          fontSize: isMobile ? '16px' : '14px'
+                        }}
                         onChange={(e) => {
                           field.onChange(e)
                           const price = parseFloat(e.target.value) || 0
@@ -764,8 +1103,8 @@ const AddBill = () => {
                     )}
                   />
                 </Col> */}
-                <Col lg="3" md="6" className="mb-1">
-                  <Label className="form-label" for={`total-${item.id}`}>
+                <Col lg="3" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
+                  <Label className="form-label" for={`total-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
                     Total:
                   </Label>
                   <Controller
@@ -778,6 +1117,13 @@ const AddBill = () => {
                         type="number"
                         step="0.01"
                         disabled
+                        className={isMobile ? 'mobile-form-input' : ''}
+                        style={{
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                          fontSize: isMobile ? '16px' : '14px'
+                        }}
                       />
                     )}
                   />
@@ -789,20 +1135,31 @@ const AddBill = () => {
           <Button
             type="button"
             color="secondary"
-            className="mb-2"
+            className={`mb-2 ${isMobile ? 'mobile-button' : ''}`}
             onClick={addItemField}
+            style={{
+              width: isMobile ? '100%' : 'auto',
+              fontSize: isMobile ? '14px' : '14px',
+              padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+            }}
           >
+            <Plus size={isMobile ? 14 : 16} className="me-1" />
             Add Another Item
           </Button>
 
-
           {/* Submit and Reset Buttons */}
-          <div className="d-flex justify-content-end mt-2">
+          <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-end'} mt-2`}>
             <Button
-              className="me-1"
+              className={isMobile ? 'mobile-button' : 'me-1'}
               color="primary"
               type="submit"
               disabled={isLoading}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '14px' : '14px',
+                padding: isMobile ? '0.5rem' : '0.375rem 0.75rem',
+                marginBottom: isMobile ? '0.5rem' : '0'
+              }}
             >
               {isLoading ? <Spinner size="sm" /> : "Create Bill"}
             </Button>
@@ -811,13 +1168,22 @@ const AddBill = () => {
               color="secondary"
               type="reset"
               onClick={handleReset}
+              className={isMobile ? 'mobile-button' : ''}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '14px' : '14px',
+                padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+              }}
             >
               Reset
             </Button>
           </div>
         </Form>
-      </CardBody>
-    </Card>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    </>
   )
 }
 

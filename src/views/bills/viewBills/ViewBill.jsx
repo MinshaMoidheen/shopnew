@@ -42,6 +42,8 @@ const ViewBill = () => {
     items: []
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
+  const [currentTheme, setCurrentTheme] = useState('light')
 
   const { data: billData, isLoading, error, refetch } = useGetBillByIdQuery(id)
   const [updateBill] = useUpdateBillMutation()
@@ -138,6 +140,41 @@ const ViewBill = () => {
     console.log("editFormData changed:", editFormData)
     console.log("Items count:", editFormData.items?.length)
   }, [editFormData])
+
+  // Get theme from localStorage
+  useEffect(() => {
+    const getThemeFromStorage = () => {
+      const skin = localStorage.getItem('skin');
+      if (skin?.toLowerCase()?.includes('dark')) {
+        return 'dark';
+      }
+      return 'light';
+    };
+    
+    setCurrentTheme(getThemeFromStorage());
+    
+    const interval = setInterval(() => {
+      const newTheme = getThemeFromStorage();
+      if (newTheme !== currentTheme) {
+        setCurrentTheme(newTheme);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentTheme]);
+
+  const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
+                      currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(true)
@@ -338,98 +375,435 @@ const ViewBill = () => {
   }
 
   return (
-    <Card>
-      <CardHeader className="d-flex justify-content-between align-items-center">
-        <CardTitle tag="h4">Bill Details</CardTitle>
-        <div className="d-flex gap-2">
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .viewbill-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-form-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-button {
+              width: 100% !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+              margin-bottom: 0.5rem !important;
+            }
+            .mobile-table-container {
+              overflow-x: auto !important;
+              width: 100% !important;
+            }
+            .mobile-table {
+              min-width: 600px !important;
+              font-size: 12px !important;
+            }
+            .mobile-table th,
+            .mobile-table td {
+              padding: 0.5rem 0.25rem !important;
+              font-size: 11px !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '0' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-center ${isMobile ? 'mobile-card-header' : ''}`}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Bill Details
+              </CardTitle>
+              <div className={`d-flex ${isMobile ? 'flex-column w-100 gap-2 mt-2' : 'gap-2'}`}>
           {!isEditing && (
-            <Button color="warning" onClick={handleEditClick}>
+                  <Button 
+                    color="warning" 
+                    onClick={handleEditClick}
+                    className={isMobile ? 'mobile-button' : ''}
+                    style={{
+                      width: isMobile ? '100%' : 'auto',
+                      fontSize: isMobile ? '14px' : '14px',
+                      padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                    }}
+                  >
               Edit Bill
             </Button>
           )}
-          <Button color="secondary" onClick={() => navigate("/apps/bills")}>
+                <Button 
+                  color="secondary" 
+                  onClick={() => navigate("/apps/bills")}
+                  className={isMobile ? 'mobile-button' : ''}
+                  style={{
+                    width: isMobile ? '100%' : 'auto',
+                    fontSize: isMobile ? '14px' : '14px',
+                    padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                  }}
+                >
             Back to Bills
           </Button>
         </div>
       </CardHeader>
-      <CardBody>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
         <Row className="mb-2">
-          <Col lg="4" md="6">
-            <Label className="form-label">Customer Name:</Label>
+          <Col lg="4" md="6" className={isMobile ? 'col-12' : ''}>
+            <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Customer Name:</Label>
             {isEditing ? (
               <Input
                 value={editFormData.customerName}
                 onChange={(e) => handleFormChange('customerName', e.target.value)}
+                className={isMobile ? 'mobile-form-input' : ''}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               />
             ) : (
-              <Input value={billData?.customerName || ''} disabled />
+              <Input 
+                value={billData?.customerName || ''} 
+                disabled 
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
+              />
             )}
           </Col>
-          <Col lg="4" md="6">
-            <Label className="form-label">Date:</Label>
+          <Col lg="4" md="6" className={isMobile ? 'col-12' : ''}>
+            <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Date:</Label>
             {isEditing ? (
               <Input
                 type="date"
                 value={editFormData.date}
                 onChange={(e) => handleFormChange('date', e.target.value)}
+                className={isMobile ? 'mobile-form-input' : ''}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               />
             ) : (
-              <Input value={billData?.date ? new Date(billData.date).toLocaleDateString() : ''} disabled />
+              <Input 
+                value={billData?.date ? new Date(billData.date).toLocaleDateString() : ''} 
+                disabled 
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
+              />
             )}
           </Col>
-          <Col lg="4" md="6">
-            <Label className="form-label">Center:</Label>
-            <Input value={getCenterName(billData?.centerId?.centerName) || ''} disabled />
+          <Col lg="4" md="6" className={isMobile ? 'col-12' : ''}>
+            <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Center:</Label>
+            <Input 
+              value={getCenterName(billData?.centerId?.centerName) || ''} 
+              disabled 
+              style={{
+                backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                fontSize: isMobile ? '16px' : '14px'
+              }}
+            />
           </Col>
         </Row>
 
         <Row className="mb-2">
-          <Col lg="4" md="6">
-            <Label className="form-label">Discount %:</Label>
+          <Col lg="4" md="6" className={isMobile ? 'col-12' : ''}>
+            <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Discount %:</Label>
             {isEditing ? (
               <Input
                 type="number"
                 step="0.01"
                 value={editFormData.offPercentage}
                 onChange={(e) => handleFormChange('offPercentage', e.target.value)}
+                className={isMobile ? 'mobile-form-input' : ''}
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
               />
             ) : (
-              <Input value={billData?.offPercentage || 0} disabled />
+              <Input 
+                value={billData?.offPercentage || 0} 
+                disabled 
+                style={{
+                  backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                  fontSize: isMobile ? '16px' : '14px'
+                }}
+              />
             )}
           </Col>
-          {/* <Col lg="4" md="6">
-            <Label className="form-label">Total VAT:</Label>
-            <Input value={billData?.totalVAT || 0} disabled />
-          </Col> */}
-          <Col lg="4" md="6">
-            <Label className="form-label">Total Amount:</Label>
-            <Input value={billData?.totalAmount || 0} disabled />
+          <Col lg="4" md="6" className={isMobile ? 'col-12' : ''}>
+            <Label className="form-label" style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Total Amount:</Label>
+            <Input 
+              value={billData?.totalAmount || 0} 
+              disabled 
+              style={{
+                backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                fontSize: isMobile ? '16px' : '14px'
+              }}
+            />
           </Col>
         </Row>
 
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <h5>Bill Items</h5>
+          <h5 style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>Bill Items</h5>
         </div>
 
-        <Table bordered responsive className="mt-2">
-          <thead>
+        <div className={isMobile ? 'mobile-table-container' : ''}>
+          <Table bordered responsive className={`mt-2 ${isMobile ? 'mobile-table' : ''}`} style={{
+            backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+            color: isDarkTheme ? '#ffffff' : '#000000'
+          }}>
+          <thead style={{ backgroundColor: isDarkTheme ? '#23263a' : '#f7fafc' }}>
             <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Unit</th>
-              <th>Selling Price</th>
-              {/* <th>Total</th> */}
-              {isEditing && <th>Actions</th>}
+              <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>#</th>
+              <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>Product</th>
+              <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>Qty</th>
+              <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>Unit</th>
+              <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>Price</th>
+              {isEditing && <th style={{ 
+                color: isDarkTheme ? '#ffffff' : '#000000',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+              }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {(isEditing ? editFormData.items : billData?.items)?.map((item, index) => (
-              <tr key={isEditing ? `edit-${item.id || index}-${item.productId || 'new'}` : `view-${index}-${item.productId || 'item'}`}>
-                <td>
+              <tr 
+                key={isEditing ? `edit-${item.id || index}-${item.productId || 'new'}` : `view-${index}-${item.productId || 'item'}`}
+                style={{ 
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}
+              >
+                <td style={{ 
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  fontSize: isMobile ? '11px' : '14px',
+                  padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                }}>
                   {index + 1}
                 </td>
-                <td>
+                <td style={{ 
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  fontSize: isMobile ? '11px' : '14px',
+                  padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                }}>
                   {isEditing ? (
                     productsLoading ? (
                       <Spinner size="sm" color="primary" />
@@ -487,29 +861,53 @@ const ViewBill = () => {
                     item.productId?.name || item.productName || getProductName(item.productId) || ''
                   )}
                 </td>
-                <td>
+                <td style={{ 
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  fontSize: isMobile ? '11px' : '14px',
+                  padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                }}>
                   {isEditing ? (
                     <Input
                       type="number"
                       value={item.quantity}
                       onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
                       min="1"
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '12px' : '14px'
+                      }}
                     />
                   ) : (
                     item.quantity || 0
                   )}
                 </td>
-                <td>
+                <td style={{ 
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  fontSize: isMobile ? '11px' : '14px',
+                  padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                }}>
                   {isEditing ? (
                     <Input
                       value={item.unit}
                       onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '12px' : '14px'
+                      }}
                     />
                   ) : (
                     item.unit || ''
                   )}
                 </td>
-                <td>
+                <td style={{ 
+                  color: isDarkTheme ? '#ffffff' : '#000000',
+                  fontSize: isMobile ? '11px' : '14px',
+                  padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                }}>
                   {isEditing ? (
                     <Input
                       type="number"
@@ -517,20 +915,33 @@ const ViewBill = () => {
                       value={item.sellingPrice}
                       onChange={(e) => handleItemChange(index, 'sellingPrice', e.target.value)}
                       min="0"
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '12px' : '14px'
+                      }}
                     />
                   ) : (
                     item.sellingPrice || 0
                   )}
                 </td>
-                {/* <td>{item.total || 0}</td> */}
                 {isEditing && (
-                  <td>
+                  <td style={{ 
+                    color: isDarkTheme ? '#ffffff' : '#000000',
+                    fontSize: isMobile ? '11px' : '14px',
+                    padding: isMobile ? '0.5rem 0.25rem' : '0.75rem'
+                  }}>
                     <Button
                       color="danger"
                       size="sm"
                       onClick={() => removeItem(index)}
+                      style={{
+                        fontSize: isMobile ? '10px' : '12px',
+                        padding: isMobile ? '0.25rem 0.5rem' : '0.375rem 0.75rem'
+                      }}
                     >
-                      Remove
+                      {isMobile ? 'Del' : 'Remove'}
                     </Button>
                   </td>
                 )}
@@ -538,14 +949,21 @@ const ViewBill = () => {
             ))}
           </tbody>
         </Table>
+        </div>
 
         {isEditing && (
-          <div className="d-flex justify-content-end gap-2 mt-3">
+          <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-end'} gap-2 mt-3`}>
             <Button
               color="primary"
               size="sm"
               onClick={addItem}
               disabled={isSubmitting}
+              className={isMobile ? 'mobile-button' : ''}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '14px' : '12px',
+                padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+              }}
             >
               Add Item
             </Button>
@@ -553,6 +971,12 @@ const ViewBill = () => {
               color="secondary"
               onClick={handleCancelEdit}
               disabled={isSubmitting}
+              className={isMobile ? 'mobile-button' : ''}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '14px' : '12px',
+                padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+              }}
             >
               Cancel
             </Button>
@@ -560,6 +984,12 @@ const ViewBill = () => {
               color="success"
               onClick={handleSubmit}
               disabled={isSubmitting}
+              className={isMobile ? 'mobile-button' : ''}
+              style={{
+                width: isMobile ? '100%' : 'auto',
+                fontSize: isMobile ? '14px' : '12px',
+                padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+              }}
             >
               {isSubmitting ? <Spinner size="sm" /> : 'Save Changes'}
             </Button>
@@ -567,6 +997,9 @@ const ViewBill = () => {
         )}
       </CardBody>
     </Card>
+        </div>
+      </div>
+    </>
   )
 }
 
