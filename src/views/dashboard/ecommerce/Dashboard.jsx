@@ -262,6 +262,7 @@ console.log("expensesData",expensesData)
               right: 0 !important;
               bottom: 0 !important;
               box-sizing: border-box !important;
+              z-index: 1 !important;
             }
             .mobile-card {
               width: 100% !important;

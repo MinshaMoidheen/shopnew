@@ -438,6 +438,7 @@ const AddNewStock = () => {
               left: 0 !important;
               right: 0 !important;
               bottom: 0 !important;
+              z-index: 1 !important;
             }
             .mobile-card {
               width: 100vw !important;
@@ -588,6 +589,7 @@ const AddNewStock = () => {
               max-width: 100% !important;
               margin: 0 !important;
               padding: 0 !important;
+              z-index: 1 !important;
             }
             .mobile-card {
               max-width: 100% !important;

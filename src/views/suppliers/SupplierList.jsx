@@ -394,6 +394,7 @@ const SupplierList = () => {
             }
             .mobile-container {
               padding: 0 !important;
+              z-index: 1 !important;
               margin: 0 !important;
               width: 100vw !important;
               height: calc(100vh - 60px) !important;
@@ -404,6 +405,7 @@ const SupplierList = () => {
               left: 0 !important;
               right: 0 !important;
               bottom: 0 !important;
+              z-index: 1 !important;
             }
             .mobile-card {
               width: 100vw !important;
@@ -507,6 +509,8 @@ const SupplierList = () => {
               max-width: 100% !important;
               margin: 0 !important;
               padding: 0 !important;
+              z-index: 1 !important;
+              z-index: 1 !important;
             }
             .mobile-card {
               max-width: 100% !important;

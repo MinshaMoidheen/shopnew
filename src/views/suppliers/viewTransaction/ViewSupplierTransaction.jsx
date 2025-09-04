@@ -376,6 +376,7 @@ const ViewSupplierTransaction = () => {
             }
             .mobile-container {
               padding: 0 !important;
+              z-index: 1 !important;
               margin: 0 !important;
               width: 100vw !important;
               height: calc(100vh - 60px) !important;
@@ -515,6 +516,7 @@ const ViewSupplierTransaction = () => {
           }
           @media (min-width: 768px) {
             .mobile-container {
+            z-index: 1 !important;
               max-width: 100% !important;
               margin: 0 !important;
               padding: 0 !important;
