@@ -11,6 +11,7 @@ import { ThemeColors } from '@src/utility/context/ThemeColors'
 // ** Styles
 import '@styles/react/libs/charts/apex-charts.scss'
 import '@styles/base/pages/dashboard-ecommerce.scss'
+import '@src/assets/scss/mobile-responsive.scss'
 
 // ** Third Party Components
 import ReactApexcharts from 'react-apexcharts'
@@ -231,165 +232,6 @@ console.log("expensesData",expensesData)
   };
 
   return (
-    <>
-      <style>
-        {`
-          @media (max-width: 767.98px) {
-            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100vw !important;
-              max-width: 100vw !important;
-              position: relative !important;
-            }
-            .dashboard-application {
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100vw !important;
-              max-width: 100vw !important;
-            }
-            .mobile-container {
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100% !important;
-              max-width: 100% !important;
-              height: calc(100vh - 60px) !important;
-              overflow-x: hidden !important;
-              overflow-y: auto !important;
-              position: fixed !important;
-              top: 60px !important;
-              left: 0 !important;
-              right: 0 !important;
-              bottom: 0 !important;
-              box-sizing: border-box !important;
-              z-index: 1 !important;
-            }
-            .mobile-card {
-              width: 100% !important;
-              max-width: 100% !important;
-              margin-bottom: 1rem !important;
-              border-radius: 8px !important;
-              box-sizing: border-box !important;
-              overflow: hidden !important;
-            }
-            .mobile-card-header {
-              padding: 1rem !important;
-              text-align: center !important;
-              border-bottom: 1px solid #e2e8f0 !important;
-              background-color: #ffffff !important;
-              border-radius: 8px 8px 0 0 !important;
-            }
-            .mobile-card-header h4 {
-              font-size: 18px !important;
-              font-weight: 600 !important;
-              margin: 0 !important;
-            }
-            .mobile-card-body {
-              padding: 1rem !important;
-            }
-            .mobile-stats-card {
-              margin-bottom: 1rem !important;
-              padding: 1rem !important;
-              border-radius: 8px !important;
-            }
-            .mobile-stats-title {
-              font-size: 14px !important;
-              font-weight: 600 !important;
-              margin-bottom: 0.5rem !important;
-            }
-            .mobile-stats-value {
-              font-size: 20px !important;
-              font-weight: 700 !important;
-              margin-bottom: 0 !important;
-            }
-            .mobile-avatar {
-              width: 40px !important;
-              height: 40px !important;
-              padding: 0.5rem !important;
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-            }
-            .mobile-avatar .avatar-content {
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              width: 100% !important;
-              height: 100% !important;
-            }
-            .mobile-table {
-              font-size: 12px !important;
-            }
-            .mobile-table th,
-            .mobile-table td {
-              padding: 0.5rem 0.25rem !important;
-              font-size: 12px !important;
-            }
-            .btn {
-              font-size: 14px !important;
-            }
-            .form-control {
-              font-size: 16px !important;
-            }
-            body, html {
-              margin: 0 !important;
-              padding: 0 !important;
-              width: 100vw !important;
-              overflow-x: hidden !important;
-            }
-            .container-fluid {
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              width: 100vw !important;
-              max-width: 100vw !important;
-            }
-            .row {
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              width: 100% !important;
-            }
-            .col, .col-12, .col-md-6, .col-xs-12 {
-              padding-left: 0.25rem !important;
-              padding-right: 0.25rem !important;
-              box-sizing: border-box !important;
-            }
-            .row {
-              margin-left: -0.25rem !important;
-              margin-right: -0.25rem !important;
-            }
-            * {
-              box-sizing: border-box !important;
-            }
-            div[class*="container"] {
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-              margin-left: 0 !important;
-              margin-right: 0 !important;
-              width: 100vw !important;
-              max-width: 100vw !important;
-            }
-            div[class*="content"] {
-              padding: 0 !important;
-              margin: 0 !important;
-              width: 100vw !important;
-              max-width: 100vw !important;
-            }
-          }
-          @media (min-width: 768px) {
-            .mobile-container {
-              max-width: 100% !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-            .container-fluid {
-              padding-left: 0 !important;
-              padding-right: 0 !important;
-            }
-          }
-        `}
-      </style>
       <div
         className="container-fluid mobile-container"
         style={{ 
@@ -814,7 +656,6 @@ console.log("expensesData",expensesData)
           </div>
         </div>
       </div>
-    </>
   )
 }
 
