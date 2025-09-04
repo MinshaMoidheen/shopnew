@@ -27,6 +27,56 @@ const Dashboard = () => {
   // ** Context
   const { colors } = useContext(ThemeColors)
 
+  // ** Mobile and Theme Detection
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
+  const [currentTheme, setCurrentTheme] = useState('light')
+
+  // Get theme from localStorage
+  const getThemeFromStorage = () => {
+    const skin = localStorage.getItem('skin');
+    if (skin?.toLowerCase()?.includes('dark')) {
+      return 'dark';
+    }
+    return 'light';
+  };
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCurrentTheme(getThemeFromStorage());
+    };
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for theme changes (in case localStorage is updated in same tab)
+    const interval = setInterval(() => {
+      const newTheme = getThemeFromStorage();
+      if (newTheme !== currentTheme) {
+        setCurrentTheme(newTheme);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [currentTheme]);
+
+  // Helper function for theme comparison - more robust
+  const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
+                      currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // ** API Hooks
   const { data: stocksData = [], refetch } = useGetAllStocksQuery({
     page: 1,
@@ -181,91 +231,364 @@ console.log("expensesData",expensesData)
   };
 
   return (
-    <div id='dashboard-ecommerce'>
-      {/* Financial Overview */}
-      <Row className='match-height'>
-        <Col lg='3' sm='6'>
-          <Card>
-            <CardBody>
-              <div className='d-flex justify-content-between align-items-center'>
-                <div>
-                  <h6 className='fw-bolder mb-75'>Total Sales</h6>
-                  <h3 className='fw-bolder mb-0'>
-                                <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
-
-                    {expenseTotals.totalSales.toLocaleString()}</h3>
-                </div>
-                <div className='avatar bg-light-primary p-50'>
-                  <span className='avatar-content'>
-                    <ShoppingBag size={20} />
-                  </span>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col lg='3' sm='6'>
-          <Card>
-            <CardBody>
-              <div className='d-flex justify-content-between align-items-center'>
-                <div>
-                  <h6 className='fw-bolder mb-75'>In Bank1</h6>
-                  <h3 className='fw-bolder mb-0'>
-                    <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
-                    {
-                      (lastTransactionData?.data?.totalBank1Amount || 0).toLocaleString()
-                    }
-                  </h3>
-                </div>
-                <div className='avatar bg-light-success p-50'>
-                  <span className='avatar-content'>
-                     <Home size={20} />
-                  </span>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-         <Col lg='3' sm='6'>
-          <Card>
-            <CardBody>
-              <div className='d-flex justify-content-between align-items-center'>
-                <div>
-                  <h6 className='fw-bolder mb-75'>In Bank2</h6>
-                  <h3 className='fw-bolder mb-0'>
-                    <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
-                    {
-                      (lastTransactionData?.data?.totalBank2Amount || 0).toLocaleString()
-                    }
-                  </h3>
-                </div>
-                <div className='avatar bg-light-success p-50'>
-                  <span className='avatar-content'>
-                     <Home size={20} />
-                  </span>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col lg='3' sm='6'>
-          <Card>
-            <CardBody>
-              <div className='d-flex justify-content-between align-items-center'>
-                <div>
-                  <h6 className='fw-bolder mb-75'>In Hand</h6>
-                  <h3 className='fw-bolder mb-0'>                                <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
-{expenseTotals.totalCashInHand.toLocaleString()}</h3>
-                </div>
-                <div className='avatar bg-light-warning p-50'>
-                  <span className='avatar-content'>
-                    <Tag size={20} />
-                  </span>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .dashboard-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              height: calc(100vh - 60px) !important;
+              overflow-x: hidden !important;
+              overflow-y: auto !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              box-sizing: border-box !important;
+            }
+            .mobile-card {
+              width: 100% !important;
+              max-width: 100% !important;
+              margin-bottom: 1rem !important;
+              border-radius: 8px !important;
+              box-sizing: border-box !important;
+              overflow: hidden !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+            }
+            .mobile-stats-card {
+              margin-bottom: 1rem !important;
+              padding: 1rem !important;
+              border-radius: 8px !important;
+            }
+            .mobile-stats-title {
+              font-size: 14px !important;
+              font-weight: 600 !important;
+              margin-bottom: 0.5rem !important;
+            }
+            .mobile-stats-value {
+              font-size: 20px !important;
+              font-weight: 700 !important;
+              margin-bottom: 0 !important;
+            }
+            .mobile-avatar {
+              width: 40px !important;
+              height: 40px !important;
+              padding: 0.5rem !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+            }
+            .mobile-avatar .avatar-content {
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            .mobile-table {
+              font-size: 12px !important;
+            }
+            .mobile-table th,
+            .mobile-table td {
+              padding: 0.5rem 0.25rem !important;
+              font-size: 12px !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.25rem !important;
+              padding-right: 0.25rem !important;
+              box-sizing: border-box !important;
+            }
+            .row {
+              margin-left: -0.25rem !important;
+              margin-right: -0.25rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100%' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '10px' : '0',
+            position: isMobile ? 'relative' : undefined,
+            top: isMobile ? '40px' : undefined,
+            left: isMobile ? '0' : undefined,
+            right: isMobile ? '0' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100%' : '100%',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div id='dashboard-ecommerce' style={{
+            width: '100%',
+            maxWidth: '100%',
+            overflowX: 'hidden',
+            boxSizing: 'border-box'
+          }}>
+            {/* Financial Overview */}
+            <Row className='match-height'>
+              <Col lg='3' sm='6' xs='6' className={isMobile ? 'mb-2' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardBody className={isMobile ? 'mobile-stats-card' : ''}>
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <div>
+                        <h6 className={`fw-bolder mb-75 ${isMobile ? 'mobile-stats-title' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>Total Sales</h6>
+                        <h3 className={`fw-bolder mb-0 ${isMobile ? 'mobile-stats-value' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '20px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {expenseTotals.totalSales.toLocaleString()}
+                        </h3>
+                      </div>
+                      {!isMobile && <div className={`avatar bg-light-primary ${isMobile ? 'mobile-avatar' : 'p-50'}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <span className='avatar-content' style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%'
+                        }}>
+                          <ShoppingBag size={isMobile ? 16 : 20} />
+                        </span>
+                      </div>}
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col lg='3' sm='6' xs='6' className={isMobile ? 'mb-2' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardBody className={isMobile ? 'mobile-stats-card' : ''}>
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <div>
+                        <h6 className={`fw-bolder mb-75 ${isMobile ? 'mobile-stats-title' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>In Bank1</h6>
+                        <h3 className={`fw-bolder mb-0 ${isMobile ? 'mobile-stats-value' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '20px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {(lastTransactionData?.data?.totalBank1Amount || 0).toLocaleString()}
+                        </h3>
+                      </div>
+                     {!isMobile && <div className={`avatar bg-light-success ${isMobile ? 'mobile-avatar' : 'p-50'}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <span className='avatar-content' style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%'
+                        }}>
+                          <Home size={isMobile ? 16 : 20} />
+                        </span>
+                      </div>}
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col lg='3' sm='6' xs='6' className={isMobile ? 'mb-2' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardBody className={isMobile ? 'mobile-stats-card' : ''}>
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <div>
+                        <h6 className={`fw-bolder mb-75 ${isMobile ? 'mobile-stats-title' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>In Bank2</h6>
+                        <h3 className={`fw-bolder mb-0 ${isMobile ? 'mobile-stats-value' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '20px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {(lastTransactionData?.data?.totalBank2Amount || 0).toLocaleString()}
+                        </h3>
+                      </div>
+                     {!isMobile && <div className={`avatar bg-light-success ${isMobile ? 'mobile-avatar' : 'p-50'}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <span className='avatar-content' style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%'
+                        }}>
+                          <Home size={isMobile ? 16 : 20} />
+                        </span>
+                      </div>}
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col lg='3' sm='6' xs='6' className={isMobile ? 'mb-2' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardBody className={isMobile ? 'mobile-stats-card' : ''}>
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <div>
+                        <h6 className={`fw-bolder mb-75 ${isMobile ? 'mobile-stats-title' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>In Hand</h6>
+                        <h3 className={`fw-bolder mb-0 ${isMobile ? 'mobile-stats-value' : ''}`} style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '20px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {expenseTotals.totalCashInHand.toLocaleString()}
+                        </h3>
+                      </div>
+                      {!isMobile &&<div className={`avatar bg-light-warning ${isMobile ? 'mobile-avatar' : 'p-50'}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <span className='avatar-content' style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          height: '100%'
+                        }}>
+                          <Tag size={isMobile ? 16 : 20} />
+                        </span>
+                      </div>}
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
         {/* <Col lg='3' sm='6'>
           <Card>
             <CardBody>
@@ -286,104 +609,211 @@ console.log("expensesData",expensesData)
         </Col> */}
       </Row>
 
-      {/* Suppliers Overview */}
-      <Row className='match-height mt-2'>
-        <Col lg='6' sm='12'>
-          <Card>
-            <CardHeader>
-              <CardTitle tag='h4'>Suppliers Overview</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <div className='d-flex justify-content-between mb-2'>
-                <div>
-                  <h6 className='fw-bolder'>Total Due</h6>
-                  <h3 className='fw-bolder text-danger'>
-                                                    <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
+            {/* Suppliers Overview */}
+            <Row className='match-height mt-2'>
+              <Col lg='6' sm='12' className={isMobile ? 'mb-3' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardHeader className={isMobile ? 'mobile-card-header' : ''} style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa',
+                    borderBottom: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
+                  }}>
+                    <CardTitle tag='h4' style={{ 
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      fontSize: isMobile ? '18px' : '20px'
+                    }}>Suppliers Overview</CardTitle>
+                  </CardHeader>
+                  <CardBody className={isMobile ? 'mobile-card-body' : ''}>
+                    <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} mb-2`}>
+                      <div className={isMobile ? 'mb-3' : ''}>
+                        <h6 className='fw-bolder' style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>Total Due</h6>
+                        <h3 className='fw-bolder text-danger' style={{ 
+                          fontSize: isMobile ? '18px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {supplierTransactionData?.totals?.totalDueAmount - supplierTransactionData?.totals?.totalPaidAmount || 0}
+                        </h3>
+                      </div>
+                      <div>
+                        <h6 className='fw-bolder' style={{ 
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          fontSize: isMobile ? '14px' : '16px'
+                        }}>Total Paid</h6>
+                        <h3 className='fw-bolder text-success' style={{ 
+                          fontSize: isMobile ? '18px' : '24px'
+                        }}>
+                          <img src={saudiRiyal} alt="SAR" style={{ width: isMobile ? '16px' : '20px', verticalAlign: 'middle' }} />
+                          {supplierTransactionData?.totals?.totalPaidAmount || 0}
+                        </h3>
+                      </div>
+                    </div>
+                    <hr style={{ borderColor: isDarkTheme ? '#4a5568' : '#e2e8f0' }}/>
+                    <div className='mt-2'>
+                      <h6 className='fw-bolder' style={{ 
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        fontSize: isMobile ? '14px' : '16px'
+                      }}>Total Bills</h6>
+                      <h3 className='fw-bolder' style={{ 
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        fontSize: isMobile ? '18px' : '24px'
+                      }}>{calculateTotalBills(billsData).toLocaleString()}</h3>
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col lg='6' sm='12' className={isMobile ? 'mb-3' : ''}>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardHeader className={isMobile ? 'mobile-card-header' : ''} style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa',
+                    borderBottom: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
+                  }}>
+                    <CardTitle tag='h4' style={{ 
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      fontSize: isMobile ? '18px' : '20px'
+                    }}>Low Stock Products</CardTitle>
+                  </CardHeader>
+                  <CardBody className={isMobile ? 'mobile-card-body' : ''}>
+                    <div className={isMobile ? 'mobile-table-container' : ''} style={{ 
+                      overflowX: isMobile ? 'auto' : 'visible',
+                      width: isMobile ? '100%' : 'auto'
+                    }}>
+                      <Table responsive className={isMobile ? 'mobile-table' : ''}>
+                        <thead>
+                          <tr>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Product</th>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Quantity</th>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {lowStocks.map((stock, index) => (
+                            <tr key={index}>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>{stock.productId?.name || 'Unknown'}</td>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>{stock.quantity}</td>
+                              <td>
+                                <Badge color='warning' style={{ fontSize: isMobile ? '10px' : '12px' }}>Low Stock</Badge>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
 
-                    {supplierTransactionData?.totals?.totalDueAmount - supplierTransactionData?.totals?.totalPaidAmount || 0}</h3>
-                </div>
-                <div>
-                  <h6 className='fw-bolder'>Total Paid</h6>
-                  <h3 className='fw-bolder text-success'>                                <img src={saudiRiyal} alt="SAR" style={{ width: '20px', verticalAlign: 'middle' }} />
-{supplierTransactionData?.totals?.totalPaidAmount || 0}</h3>
-                </div>
-              </div>
-              <hr/>
-              <div className='mt-2'>
-                <h6 className='fw-bolder'>Total Bills</h6>
-                <h3 className='fw-bolder'>{calculateTotalBills(billsData).toLocaleString()}</h3>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col lg='6' sm='12'>
-          <Card>
-            <CardHeader>
-              <CardTitle tag='h4'>Low Stock Products</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <Table responsive>
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lowStocks.map((stock, index) => (
-                    <tr key={index}>
-                      <td>{stock.productId?.name || 'Unknown'}</td>
-                      <td>{stock.quantity}</td>
-                      <td>
-                        <Badge color='warning'>Low Stock</Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Recent Activity Logs */}
-      <Row className='match-height mt-2'>
-        <Col xs='12'>
-          <Card>
-            <CardHeader>
-              <CardTitle tag='h4'>Recent Activity Logs</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <Table responsive>
-                <thead>
-                  <tr>
-                    <th>Action</th>
-                    <th>Module</th>
-                    <th>User</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentLogs.map((log, index) => (
-                    <tr key={index}>
-                      <td>
-                        <Badge color={log.action === 'created' ? 'success' : 'primary'}>
-                          {log.action}
-                        </Badge>
-                      </td>
-                      <td>{log.module}</td>
-                      <td>{log.user?.email || 'Unknown'}</td>
-                      <td>{new Date(log.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+            {/* Recent Activity Logs */}
+            <Row className='match-height mt-2'>
+              <Col xs='12'>
+                <Card className={isMobile ? 'mobile-card' : ''} style={{
+                  backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                  border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                  color: isDarkTheme ? '#ffffff' : '#000000'
+                }}>
+                  <CardHeader className={isMobile ? 'mobile-card-header' : ''} style={{
+                    backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa',
+                    borderBottom: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
+                  }}>
+                    <CardTitle tag='h4' style={{ 
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      fontSize: isMobile ? '18px' : '20px'
+                    }}>Recent Activity Logs</CardTitle>
+                  </CardHeader>
+                  <CardBody className={isMobile ? 'mobile-card-body' : ''}>
+                    <div className={isMobile ? 'mobile-table-container' : ''} style={{ 
+                      overflowX: isMobile ? 'auto' : 'visible',
+                      width: isMobile ? '100%' : 'auto'
+                    }}>
+                      <Table responsive className={isMobile ? 'mobile-table' : ''}>
+                        <thead>
+                          <tr>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Action</th>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Module</th>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>User</th>
+                            <th style={{ 
+                              color: isDarkTheme ? '#ffffff' : '#000000',
+                              fontSize: isMobile ? '12px' : '14px',
+                              backgroundColor: isDarkTheme ? '#2d3748' : '#f8f9fa'
+                            }}>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recentLogs.map((log, index) => (
+                            <tr key={index}>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>
+                                <Badge color={log.action === 'created' ? 'success' : 'primary'} style={{ fontSize: isMobile ? '10px' : '12px' }}>
+                                  {log.action}
+                                </Badge>
+                              </td>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>{log.module}</td>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>{log.user?.email || 'Unknown'}</td>
+                              <td style={{ 
+                                color: isDarkTheme ? '#ffffff' : '#000000',
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>{new Date(log.createdAt).toLocaleDateString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
