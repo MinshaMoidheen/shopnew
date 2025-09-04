@@ -74,6 +74,7 @@ const ExpensesTable = () => {
   });
 
   const [searchValue, setSearchValue] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
 
   const [addInitialCashInHand] = useAddInitialCashInHandMutation();
   const [showInitialCashForm, setShowInitialCashForm] = useState(false);
@@ -103,6 +104,16 @@ const ExpensesTable = () => {
 
   const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
                       currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Get centers data with proper error handling
   const { data: centersData, isLoading: centersLoading, error: centersError } = useGetCentersQuery({
@@ -521,19 +532,23 @@ const ExpensesTable = () => {
     {
       field: "id",
       headerName: "S.No",
-      width: 80,
+      width: isMobile ? 50 : 80,
+      minWidth: isMobile ? 50 : 80,
       renderCell: (params) => params.row.index + 1,
     },
     {
       field: "description",
-      headerName: "Description",
-      width: 250,
+      headerName: isMobile ? "Desc" : "Description",
+      width: isMobile ? 150 : 250,
+      minWidth: isMobile ? 120 : 200,
+      flex: 1,
       sortable: true,
     },
     {
       field: "date",
       headerName: "Date",
-      width: 150,
+      width: isMobile ? 100 : 150,
+      minWidth: isMobile ? 80 : 120,
       sortable: true,
       renderCell: (params) => (
         <span>
@@ -546,7 +561,8 @@ const ExpensesTable = () => {
     {
       field: "expenseType",
       headerName: "Type",
-      width: 120,
+      width: isMobile ? 80 : 120,
+      minWidth: isMobile ? 60 : 100,
       sortable: true,
       renderCell: (params) => (
         <Badge 
@@ -560,13 +576,15 @@ const ExpensesTable = () => {
     {
       field: "mode",
       headerName: "Mode",
-      width: 100,
+      width: isMobile ? 70 : 100,
+      minWidth: isMobile ? 60 : 80,
       sortable: true,
     },
     {
       field: "amount",
       headerName: "Amount",
-      width: 120,
+      width: isMobile ? 100 : 120,
+      minWidth: isMobile ? 80 : 100,
       sortable: true,
       renderCell: (params) => (
         <span className="fw-bold">${params.row.amount || 0}</span>
@@ -575,7 +593,8 @@ const ExpensesTable = () => {
     {
       field: "bank",
       headerName: "Bank",
-      width: 100,
+      width: isMobile ? 80 : 100,
+      minWidth: isMobile ? 60 : 80,
       sortable: true,
       renderCell: (params) => (
         <span>{params.row.bank || 'N/A'}</span>
@@ -584,10 +603,11 @@ const ExpensesTable = () => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 200,
+      width: isMobile ? 150 : 200,
+      minWidth: isMobile ? 150 : 180,
       sortable: false,
       renderCell: (params) => (
-        <div className="d-flex mt-1">
+        <div className="d-flex flex-column flex-md-row gap-1 mt-1">
           <Button
             color="secondary"
             size="sm"
@@ -595,10 +615,15 @@ const ExpensesTable = () => {
               e.stopPropagation();
               handleEditClick(params.row);
             }}
-            style={{ marginRight: '4px' }}
+            className="btn-sm"
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto'
+            }}
           >
-            <Edit size={12} className="me-1" />
-            Edit
+            <Edit size={isMobile ? 10 : 12} className={isMobile ? '' : 'me-1'} />
+            {!isMobile && 'Edit'}
           </Button>
           <Button
             color="danger"
@@ -607,9 +632,15 @@ const ExpensesTable = () => {
               e.stopPropagation();
               handleDeleteClick(params.row._id);
             }}
+            className="btn-sm"
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto'
+            }}
           >
-            <Trash size={12} className="me-1" />
-            Delete
+            <Trash size={isMobile ? 10 : 12} className={isMobile ? '' : 'me-1'} />
+            {!isMobile && 'Delete'}
           </Button>
         </div>
       ),
@@ -632,11 +663,226 @@ const ExpensesTable = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle tag="h4">Transactions List</CardTitle>
-      </CardHeader>
-      <CardBody>
+    <>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .expenses-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header .d-flex {
+              min-height: 40px !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-search-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-search-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 340px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
+      <div
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
+      >
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '20px' : undefined,
+            right: isMobile ? '20px' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '100px' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardHeader 
+              className={isMobile ? 'mobile-card-header' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#23263a' : '#ffffff',
+                borderBottom: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
+              <CardTitle 
+                tag="h4" 
+                className={isMobile ? 'mobile-card-header h4' : ''}
+                style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}
+              >
+                Transactions List
+              </CardTitle>
+            </CardHeader>
+            <CardBody 
+              className={isMobile ? 'mobile-card-body' : ''}
+              style={{
+                backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+                color: isDarkTheme ? '#ffffff' : '#000000'
+              }}
+            >
         {/* Bank Totals Display */}
         <Row className="mx-0 mt-1 mb-3">
           <Col md="12">
@@ -664,83 +910,124 @@ const ExpensesTable = () => {
           </Col>
         </Row>
 
-        <Row className="mx-0 mt-1 mb-2">
-          <Col md="3" sm="12" className="mb-1">
-            <Label for="startDate">Date</Label>
-            <Flatpickr
-              className="form-control"
-              id="startDate"
-              value={startDate}
-              onChange={(date) => setStartDate(date[0])}
-              options={{ 
-                dateFormat: "Y-m-d",
-                allowInput: true,
-                defaultDate: startDate
-              }}
-              placeholder="Select Date"
-              required
-            />
-          </Col>
-          
-          <Col md="3" sm="12" className="mb-1">
-            <Label for="center">Center</Label>
-            <Input
-              type="select"
-              id="center"
-              value={centerState}
-              onChange={(e) => setCenter(e.target.value)}
-              required
-            >
-              <option value="">Select Center</option>
-              {centersLoading ? (
-                <option>Loading centers...</option>
-              ) : centersError ? (
-                <option>Error loading centers</option>
-              ) : centersData?.data?.map(center => (
-                <option key={center._id} value={center._id}>
-                  {center.centerName}
-                </option>
-              ))}
-            </Input>
-          </Col>
+              <div className="mobile-search-section">
+                <Row className="mx-0 mt-1 mb-2">
+                  <Col md="3" sm="12" className="mb-1">
+                    <Label for="startDate" style={{ 
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      fontSize: isMobile ? '14px' : '16px'
+                    }}>Date</Label>
+                    <Flatpickr
+                      className="form-control mobile-search-input"
+                      id="startDate"
+                      value={startDate}
+                      onChange={(date) => setStartDate(date[0])}
+                      options={{ 
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        defaultDate: startDate
+                      }}
+                      placeholder="Select Date"
+                      required
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
+                    />
+                  </Col>
+                  
+                  <Col md="3" sm="12" className="mb-1">
+                    <Label for="center" style={{ 
+                      color: isDarkTheme ? '#ffffff' : '#000000',
+                      fontSize: isMobile ? '14px' : '16px'
+                    }}>Center</Label>
+                    <Input
+                      type="select"
+                      id="center"
+                      value={centerState}
+                      onChange={(e) => setCenter(e.target.value)}
+                      required
+                      style={{
+                        backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                        color: isDarkTheme ? '#ffffff' : '#000000',
+                        border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
+                        fontSize: isMobile ? '16px' : '14px'
+                      }}
+                    >
+                      <option value="">Select Center</option>
+                      {centersLoading ? (
+                        <option>Loading centers...</option>
+                      ) : centersError ? (
+                        <option>Error loading centers</option>
+                      ) : centersData?.data?.map(center => (
+                        <option key={center._id} value={center._id}>
+                          {center.centerName}
+                        </option>
+                      ))}
+                    </Input>
+                  </Col>
 
-          <Col md="3" sm="12" className="mb-1 d-flex align-items-end">
-            <Button color="secondary" className="w-100" onClick={handleClearFilters}>
-              Clear
-            </Button>
-          </Col>
-          <Col md="3" sm="12" className="mb-1 d-flex align-items-end">
-            {startDate && centerState && (
-              <div className="text-muted small">
-                {isLoading ? (
-                  <span><Spinner size="sm" /> Loading transactions...</span>
-                ) : (
-                  <span></span>
-                )}
+                  <Col md="3" sm="12" className="mb-1 d-flex align-items-end">
+                    <Button 
+                      color="secondary" 
+                      className={`w-100 ${isMobile ? 'mobile-add-button' : ''}`}
+                      onClick={handleClearFilters}
+                      style={{
+                        fontSize: isMobile ? '14px' : '14px',
+                        padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  </Col>
+                  <Col md="3" sm="12" className="mb-1 d-flex align-items-end">
+                    {startDate && centerState && (
+                      <div className="text-muted small" style={{ 
+                        color: isDarkTheme ? '#a0aec0' : '#6b7280',
+                        fontSize: isMobile ? '12px' : '14px'
+                      }}>
+                        {isLoading ? (
+                          <span><Spinner size="sm" /> Loading transactions...</span>
+                        ) : (
+                          <span></span>
+                        )}
+                      </div>
+                    )}
+                  </Col>
+                </Row>
               </div>
-            )}
-          </Col>
-        </Row>
 
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <div className="d-flex gap-2">
-              <Button 
-                color="primary"
-                onClick={() => setShowAddForm(!showAddForm)}
-              >
-              <Plus size={15} className="me-1" />
-                {showAddForm ? 'Cancel Add' : 'Add New Transaction'}
-              </Button>
-            {editingExpense && (
-                <Button 
-                  color="secondary"
-                onClick={handleCancelEdit}
-              >
-                  Cancel Edit
-                </Button>
-            )}
-          </div>
-        </div>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className={`d-flex ${isMobile ? 'flex-column' : 'gap-2'}`}>
+                    <Button 
+                      color="primary"
+                      onClick={() => setShowAddForm(!showAddForm)}
+                      className={isMobile ? 'mobile-add-button mb-2' : ''}
+                      style={{
+                        fontSize: isMobile ? '14px' : '14px',
+                        padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                      }}
+                    >
+                    <Plus size={isMobile ? 12 : 15} className={isMobile ? '' : 'me-1'} />
+                      {isMobile ? (showAddForm ? 'Cancel' : 'Add') : (showAddForm ? 'Cancel Add' : 'Add New Transaction')}
+                    </Button>
+                  {/* {editingExpense && (
+                      <Button 
+                        color="secondary"
+                      onClick={handleCancelEdit}
+                      className={isMobile ? 'mobile-add-button' : ''}
+                      style={{
+                        fontSize: isMobile ? '14px' : '14px',
+                        padding: isMobile ? '0.5rem' : '0.375rem 0.75rem'
+                      }}
+                    >
+                        {isMobile ? 'Cancel' : 'Cancel Edit'}
+                      </Button>
+                  )} */}
+                </div>
+              </div>
 
         {/* {showInitialCashForm && (
           <Form className="mb-3" onSubmit={handleInitialCashSubmit}>
@@ -954,6 +1241,109 @@ const ExpensesTable = () => {
             </div>
           </div>
         </div>
+        {editingExpense && (
+          <Card className="mb-3">
+            <CardHeader>
+              <CardTitle tag="h5">Edit Transaction</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Form onSubmit={handleSaveEdit}>
+                <div className="row">
+                  <div className="col-md-3 mb-2">
+                    <Label>Description</Label>
+                    <Input 
+                      type="text"
+                      value={editingExpense.description || ''}
+                      onChange={(e) => setEditingExpense(prev => ({ ...prev, description: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-3 mb-2">
+                    <Label>Date</Label>
+                      <Flatpickr
+                        className="form-control"
+                        value={editingExpense.date}
+                      onChange={date => setEditingExpense(prev => ({ ...prev, date: date[0] }))}
+                        options={{ dateFormat: "Y-m-d" }}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-3 mb-2">
+                    <Label>Type</Label>
+                      <Input 
+                        type="select"
+                        value={editingExpense.expenseType}
+                      onChange={(e) => setEditingExpense(prev => ({ ...prev, expenseType: e.target.value }))}
+                        style={{
+                          backgroundColor: editingExpense.expenseType === 'income' ? 'lightgreen' :
+                                         editingExpense.expenseType === 'expense' ? '#f8d7da' : 'white'
+                        }}
+                      >
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                      </Input>
+                  </div>
+                  <div className="col-md-3 mb-2">
+                    <Label>Mode</Label>
+                    <Input 
+                      type="select"
+                      value={editingExpense.mode}
+                      onChange={(e) => setEditingExpense(prev => ({ ...prev, mode: e.target.value }))}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="bank">Bank</option>
+                    </Input>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-3 mb-2">
+                    <Label>Amount</Label>
+                    <Input 
+                      type="number"
+                      value={editingExpense.amount || ''}
+                      onChange={(e) => setEditingExpense(prev => ({ ...prev, amount: e.target.value }))}
+                      required
+                      min="0"
+                    />
+                  </div>
+                  <div className="col-md-3 mb-2">
+                    <Label>Bank</Label>
+                    <Input 
+                      type="select"
+                      value={editingExpense.bank || ''}
+                      onChange={(e) => setEditingExpense(prev => ({ ...prev, bank: e.target.value }))}
+                      disabled={editingExpense.mode === 'cash'}
+                      style={{
+                        backgroundColor: editingExpense.mode === 'cash' ? '#f8f9fa' : 'white',
+                        cursor: editingExpense.mode === 'cash' ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      <option value="">Select Bank</option>
+                      <option value="BANK1">Bank1</option>
+                      <option value="BANK2">Bank2</option>
+                    </Input>
+          </div>
+                </div>
+                <div className="d-flex gap-2 mt-3">
+                  <Button
+                    color="success"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
+                  </Button>
+                  <Button
+                    color="secondary"
+                    type="button"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel Edit
+                  </Button>
+                </div>
+              </Form>
+            </CardBody>
+          </Card>
+        )}
 
         {!searchParams.date || !searchParams.center ? (
           <div className="text-center py-5">
@@ -964,7 +1354,7 @@ const ExpensesTable = () => {
             <p className="text-muted">No transactions found</p>
           </div>
         ) : (
-          <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+          <div className="table-responsive mobile-table-container" style={{ height: 400, width: '100%', marginBottom: "40px" }}>
             <DataGrid
               key={currentTheme}
               rows={gridData}
@@ -1114,116 +1504,61 @@ const ExpensesTable = () => {
                 '& .MuiDataGrid-virtualScrollerRenderZone': {
                   backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                 },
+                // Mobile responsive styles
+                '@media (max-width: 767.98px)': {
+                  fontSize: '11px !important',
+                  width: '100% !important',
+                  height: '100% !important',
+                  '& .MuiDataGrid-columnHeader': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                    fontWeight: '600 !important',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    fontSize: '9px !important',
+                    padding: '1px 2px !important',
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiDataGrid-main': {
+                    overflowX: 'auto !important',
+                    width: '100% !important',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    minWidth: '600px !important',
+                  },
+                  '& .MuiDataGrid-virtualScroller': {
+                    minWidth: '600px !important',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    minWidth: '600px !important',
+                    fontSize: '9px !important',
+                  },
+                  '& .MuiDataGrid-row': {
+                    minHeight: '28px !important',
+                  },
+                  '& .MuiButton-root': {
+                    minWidth: 'auto !important',
+                    padding: '1px 2px !important',
+                    fontSize: '8px !important',
+                    minHeight: '20px !important',
+                  },
+                  '& .MuiDataGrid-root': {
+                    width: '100% !important',
+                    height: '100% !important',
+                  },
+                },
               }}
             />
           </div>
         )}
 
-        {editingExpense && (
-          <Card className="mb-3">
-            <CardHeader>
-              <CardTitle tag="h5">Edit Transaction</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <Form onSubmit={handleSaveEdit}>
-                <div className="row">
-                  <div className="col-md-3 mb-2">
-                    <Label>Description</Label>
-                    <Input 
-                      type="text"
-                      value={editingExpense.description || ''}
-                      onChange={(e) => setEditingExpense(prev => ({ ...prev, description: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Date</Label>
-                      <Flatpickr
-                        className="form-control"
-                        value={editingExpense.date}
-                      onChange={date => setEditingExpense(prev => ({ ...prev, date: date[0] }))}
-                        options={{ dateFormat: "Y-m-d" }}
-                      required
-                    />
-                  </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Type</Label>
-                      <Input 
-                        type="select"
-                        value={editingExpense.expenseType}
-                      onChange={(e) => setEditingExpense(prev => ({ ...prev, expenseType: e.target.value }))}
-                        style={{
-                          backgroundColor: editingExpense.expenseType === 'income' ? 'lightgreen' :
-                                         editingExpense.expenseType === 'expense' ? '#f8d7da' : 'white'
-                        }}
-                      >
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                      </Input>
-                  </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Mode</Label>
-                    <Input 
-                      type="select"
-                      value={editingExpense.mode}
-                      onChange={(e) => setEditingExpense(prev => ({ ...prev, mode: e.target.value }))}
-                    >
-                      <option value="cash">Cash</option>
-                      <option value="bank">Bank</option>
-                    </Input>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-3 mb-2">
-                    <Label>Amount</Label>
-                    <Input 
-                      type="number"
-                      value={editingExpense.amount || ''}
-                      onChange={(e) => setEditingExpense(prev => ({ ...prev, amount: e.target.value }))}
-                      required
-                      min="0"
-                    />
-                  </div>
-                  <div className="col-md-3 mb-2">
-                    <Label>Bank</Label>
-                    <Input 
-                      type="select"
-                      value={editingExpense.bank || ''}
-                      onChange={(e) => setEditingExpense(prev => ({ ...prev, bank: e.target.value }))}
-                      disabled={editingExpense.mode === 'cash'}
-                      style={{
-                        backgroundColor: editingExpense.mode === 'cash' ? '#f8f9fa' : 'white',
-                        cursor: editingExpense.mode === 'cash' ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      <option value="">Select Bank</option>
-                      <option value="BANK1">Bank1</option>
-                      <option value="BANK2">Bank2</option>
-                    </Input>
-          </div>
-                </div>
-                <div className="d-flex gap-2 mt-3">
-                  <Button
-                    color="success"
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
-                  </Button>
-                  <Button
-                    color="secondary"
-                    type="button"
-                    onClick={handleCancelEdit}
-                  >
-                    Cancel Edit
-                  </Button>
-                </div>
-              </Form>
+        
             </CardBody>
           </Card>
-        )}
-      </CardBody>
-    </Card>
+        </div>
+      </div>
+    </>
   );
 };
 
