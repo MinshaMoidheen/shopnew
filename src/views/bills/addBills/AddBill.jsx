@@ -665,7 +665,7 @@ const AddBill = () => {
               >
                 Create New Bill
               </CardTitle>
-            </CardHeader>
+      </CardHeader>
             <CardBody 
               className={isMobile ? 'mobile-card-body' : ''}
               style={{
@@ -910,7 +910,7 @@ const AddBill = () => {
                   Item {index + 1}
                 </h6>
               </div>
-              {items.length > 1 && (
+                {items.length > 1 && (
                 <div className={`d-flex ${isMobile ? 'justify-content-center' : 'justify-content-end'} mb-2 ${isMobile ? 'mobile-remove-container' : ''}`}>
                   <Button
                     color="danger"
@@ -925,7 +925,7 @@ const AddBill = () => {
                   >
                     {isMobile ? 'Del' : 'Remove'}
                   </Button>
-                </div>
+              </div>
               )}
               <Row>
                 <Col lg="3" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
@@ -969,8 +969,8 @@ const AddBill = () => {
 
                 <Col lg="2" md="6" className={`mb-1 ${isMobile ? 'col-12' : ''}`}>
                   <Label className="form-label" for={`quantity-${item.id}`} style={{ color: isDarkTheme ? '#ffffff' : '#000000' }}>
-                    Quantity:
-                  </Label>
+    Quantity:
+  </Label>
   <Controller
     name={`items.${index}.quantity`}
     control={control}
@@ -983,14 +983,14 @@ const AddBill = () => {
       }
     }}
     render={({ field }) => (
-                            <Input
-                        {...field}
-                        id={`quantity-${item.id}`}
-                        type="number"
-                        min="0.1"
-                        step="0.1" // ✅ Enables decimal input in browser
-                        invalid={!!errors?.items?.[index]?.quantity}
-                        placeholder="Quantity"
+      <Input
+        {...field}
+        id={`quantity-${item.id}`}
+        type="number"
+        min="0.1"
+        step="0.1" // ✅ Enables decimal input in browser
+        invalid={!!errors?.items?.[index]?.quantity}
+        placeholder="Quantity"
                         className={isMobile ? 'mobile-form-input' : ''}
                         style={{
                           backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
@@ -998,15 +998,15 @@ const AddBill = () => {
                           border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0',
                           fontSize: isMobile ? '16px' : '14px'
                         }}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          const quantity = parseFloat(e.target.value) || 0
-                          const price = parseFloat(watch(`items.${index}.sellingPrice`)) || 0
-                          const newTotal = quantity * price
-                          setValue(`items.${index}.total`, newTotal.toFixed(2)) // optional: round total to 2 decimals
-                          calculateTotalAmount()
-                        }}
-                      />
+        onChange={(e) => {
+          field.onChange(e)
+          const quantity = parseFloat(e.target.value) || 0
+          const price = parseFloat(watch(`items.${index}.sellingPrice`)) || 0
+          const newTotal = quantity * price
+          setValue(`items.${index}.total`, newTotal.toFixed(2)) // optional: round total to 2 decimals
+          calculateTotalAmount()
+        }}
+      />
     )}
   />
   {errors?.items?.[index]?.quantity && (
@@ -1179,8 +1179,8 @@ const AddBill = () => {
             </Button>
           </div>
         </Form>
-            </CardBody>
-          </Card>
+      </CardBody>
+    </Card>
         </div>
       </div>
     </>

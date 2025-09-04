@@ -689,7 +689,7 @@ const AddNewStock = () => {
                   Stock {index + 1}
                 </h6>
               </div>
-              {stocks.length > 1 && (
+                {stocks.length > 1 && (
                 <div className={`d-flex ${isMobile ? 'justify-content-center' : 'justify-content-end'} mb-2 ${isMobile ? 'mobile-remove-container' : ''}`}>
                   <Button
                     color="danger"
@@ -703,7 +703,7 @@ const AddNewStock = () => {
                   >
                     Remove
                   </Button>
-                </div>
+              </div>
               )}
               <Row>
                 <Col lg="4" md="6" xs="12" className="mb-1">

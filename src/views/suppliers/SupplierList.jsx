@@ -584,7 +584,7 @@ const SupplierList = () => {
               >
                 Suppliers List
               </CardTitle>
-            </CardHeader>
+      </CardHeader>
             <CardBody 
               className={isMobile ? 'mobile-card-body' : ''}
               style={{
@@ -796,7 +796,7 @@ const SupplierList = () => {
                       }}
                     />
                   </div>
-                </div>
+                    </div>
                 <div className={`d-flex ${isMobile ? 'flex-column' : 'gap-2'} mt-3`}>
                   <Button
                     color="success"
@@ -811,7 +811,7 @@ const SupplierList = () => {
                   >
                     {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
                   </Button>
-                  <Button
+                    <Button
                     color="secondary"
                     type="button"
                     onClick={handleCancelEdit}
@@ -823,7 +823,7 @@ const SupplierList = () => {
                     }}
                   >
                     Cancel Edit
-                  </Button>
+                    </Button>
                 </div>
               </Form>
             </CardBody>
@@ -1038,8 +1038,8 @@ const SupplierList = () => {
             />
           </div>
         )}
-            </CardBody>
-          </Card>
+      </CardBody>
+    </Card>
         </div>
       </div>
     </>

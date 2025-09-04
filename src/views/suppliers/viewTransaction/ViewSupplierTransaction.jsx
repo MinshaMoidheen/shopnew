@@ -659,31 +659,31 @@ const ViewSupplierTransaction = () => {
               )}
             </div>
           ) : (
-            <div className="d-flex gap-2">
-              <Button
-                color="info"
-                onClick={() => setShowTransactionForm(!showTransactionForm)}
+          <div className="d-flex gap-2">
+            <Button
+              color="info"
+              onClick={() => setShowTransactionForm(!showTransactionForm)}
                 style={{ 
                   minWidth: "120px",
                   fontSize: '14px'
                 }}
-              >
-                <Plus size={15} className="me-1" />
-                {showTransactionForm ? "Cancel Transaction" : "Add Transaction"}
-              </Button>
-              {editingTransaction && (
-                <>
-                  <Button
-                    color="success"
-                    onClick={handleSaveEdit}
-                    disabled={isSubmitting}
+            >
+              <Plus size={15} className="me-1" />
+              {showTransactionForm ? "Cancel Transaction" : "Add Transaction"}
+            </Button>
+            {editingTransaction && (
+              <>
+                <Button
+                  color="success"
+                  onClick={handleSaveEdit}
+                  disabled={isSubmitting}
                     style={{ 
                       minWidth: "100px",
                       fontSize: '14px'
                     }}
-                  >
-                    {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
-                  </Button>
+                >
+                  {isSubmitting ? <Spinner size="sm" /> : "Save Changes"}
+                </Button>
                   <Button 
                     color="secondary" 
                     onClick={handleCancelEdit}
@@ -692,11 +692,11 @@ const ViewSupplierTransaction = () => {
                       fontSize: '14px'
                     }}
                   >
-                    Cancel Edit
-                  </Button>
-                </>
-              )}
-            </div>
+                  Cancel Edit
+                </Button>
+              </>
+            )}
+          </div>
           )}
         </div>
 

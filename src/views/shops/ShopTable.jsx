@@ -39,6 +39,7 @@ const ShopTable = () => {
   const [selectedRow, setSelectedRow] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [currentTheme, setCurrentTheme] = useState('light')
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767)
   const [deleteShop] = useDeleteShopMutation()
   const navigate = useNavigate()
 
@@ -66,6 +67,16 @@ const ShopTable = () => {
 
   const isDarkTheme = currentTheme?.toLowerCase()?.trim() === "dark" || 
                       currentTheme?.toLowerCase()?.includes("dark");
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch shops from backend with pagination
   const { data: shopsData, isLoading, refetch } = useGetAllShopsQuery({
@@ -225,7 +236,8 @@ const ShopTable = () => {
     {
       field: "id",
       headerName: "S.No",
-      width: 80,
+      width: isMobile ? 50 : 80,
+      minWidth: isMobile ? 50 : 80,
       renderCell: (params) => {
         const index = shops.findIndex(shop => shop._id === params.row._id);
         return (currentPage - 1) * itemsPerPage + index + 1;
@@ -234,19 +246,23 @@ const ShopTable = () => {
     {
       field: "name",
       headerName: "Shop Name",
-      width: 250,
+      width: isMobile ? 120 : 250,
+      minWidth: isMobile ? 100 : 200,
+      flex: 1,
       sortable: true,
     },
     {
       field: "location",
       headerName: "Location",
-      width: 250,
+      width: isMobile ? 100 : 250,
+      minWidth: isMobile ? 80 : 200,
       sortable: true,
     },
     {
       field: "productsCount",
-      headerName: "Products Count",
-      width: 150,
+      headerName: isMobile ? "Products" : "Products Count",
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: false,
       renderCell: (params) => (
         <Badge color="info" pill>
@@ -256,8 +272,9 @@ const ShopTable = () => {
     },
     {
       field: "totalPrice",
-      headerName: "Total Price",
-      width: 150,
+      headerName: isMobile ? "Price" : "Total Price",
+      width: isMobile ? 80 : 150,
+      minWidth: isMobile ? 70 : 120,
       sortable: true,
       renderCell: (params) => (
         <span className="fw-bold">
@@ -268,22 +285,28 @@ const ShopTable = () => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 300,
+      width: isMobile ? 150 : 300,
+      minWidth: isMobile ? 150 : 250,
       sortable: false,
       renderCell: (params) => (
-        <div className="d-flex mt-1">
-          <Button
+        <div className="d-flex flex-column flex-md-row gap-1 mt-1">
+          {/* <Button
             color="secondary"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/apps/shops/edit/${params.row._id}`);
             }}
-            style={{ marginRight: '4px' }}
+            className="btn-sm"
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto'
+            }}
           >
-            <Edit size={12} className="me-1" />
-            Edit
-          </Button>
+            <Edit size={isMobile ? 10 : 12} />
+            {!isMobile && <span className="ms-1">Edit</span>}
+          </Button> */}
           <Button
             color="info"
             size="sm"
@@ -291,10 +314,15 @@ const ShopTable = () => {
               e.stopPropagation();
               navigate(`/apps/shops/view/${params.row._id}`);
             }}
-            style={{ marginRight: '4px' }}
+            className="btn-sm"
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto'
+            }}
           >
-            <Eye size={12} className="me-1" />
-            View
+            <Eye size={isMobile ? 10 : 12} />
+            {!isMobile && <span className="ms-1">View</span>}
           </Button>
           <Button
             color="danger"
@@ -303,9 +331,15 @@ const ShopTable = () => {
               e.stopPropagation();
               handleDeleteClick(params.row._id);
             }}
+            className="btn-sm"
+            style={{ 
+              fontSize: isMobile ? '8px' : '10px', 
+              padding: isMobile ? '1px 2px' : '2px 4px',
+              minWidth: isMobile ? '20px' : 'auto'
+            }}
           >
-            <Trash size={12} className="me-1" />
-            Delete
+            <Trash size={isMobile ? 10 : 12} />
+            {!isMobile && <span className="ms-1">Delete</span>}
           </Button>
         </div>
       ),
@@ -354,38 +388,242 @@ const ShopTable = () => {
 
   return (
     <Fragment>
+      <style>
+        {`
+          @media (max-width: 767.98px) {
+            .app-content, .content-area-wrapper, .container, .main-content, .content-wrapper {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+              position: relative !important;
+            }
+            .shops-application {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .mobile-container {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              overflow: auto !important;
+              max-width: 100vw !important;
+              position: fixed !important;
+              top: 60px !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card {
+              width: 100vw !important;
+              height: calc(100vh - 60px) !important;
+              margin: 0 !important;
+              border-radius: 0 !important;
+              border: none !important;
+              max-width: 100vw !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+            }
+            .mobile-card-header {
+              padding: 1rem !important;
+              text-align: center !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              background-color: #ffffff !important;
+              border-radius: 8px 8px 0 0 !important;
+            }
+            .mobile-card-header .d-flex {
+              min-height: 40px !important;
+            }
+            .mobile-card-header h4 {
+              font-size: 18px !important;
+              font-weight: 600 !important;
+              margin: 0 !important;
+            }
+            .mobile-card-body {
+              padding: 1rem !important;
+              height: calc(100vh - 180px) !important;
+              overflow: auto !important;
+            }
+            .mobile-search-section {
+              margin-bottom: 1rem !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-search-input {
+              width: 100% !important;
+              margin-bottom: 0.5rem !important;
+              font-size: 16px !important;
+            }
+            .mobile-add-button {
+              width: auto !important;
+              min-width: 80px !important;
+              max-width: 100px !important;
+              font-size: 14px !important;
+              padding: 0.5rem !important;
+            }
+            .mobile-table-container {
+              height: calc(100vh - 340px) !important;
+              overflow: auto !important;
+            }
+            .btn {
+              font-size: 14px !important;
+            }
+            .form-control {
+              font-size: 16px !important;
+            }
+            body, html {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            .row {
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100% !important;
+            }
+            .col, .col-12, .col-md-6, .col-xs-12 {
+              padding-left: 0.5rem !important;
+              padding-right: 0.5rem !important;
+            }
+            * {
+              box-sizing: border-box !important;
+            }
+            div[class*="container"] {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+            div[class*="content"] {
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100vw !important;
+              max-width: 100vw !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .mobile-container {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .mobile-card {
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .container-fluid {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+            }
+          }
+        `}
+      </style>
       <div
-        className="container"
-        style={{ height: "calc(100vh - 100px)", overflow: "auto" }}
+        className="container-fluid mobile-container"
+        style={{ 
+          height: isMobile ? "calc(100vh - 60px)" : "calc(100vh - 100px)", 
+          overflow: "auto",
+          padding: isMobile ? '0' : '0',
+          margin: isMobile ? '0' : '0',
+          width: isMobile ? '100vw' : '100%',
+          maxWidth: isMobile ? '100vw' : '100%',
+          position: isMobile ? 'fixed' : undefined,
+          top: isMobile ? '60px' : undefined,
+          left: isMobile ? '0' : undefined,
+          right: isMobile ? '0' : undefined,
+          bottom: isMobile ? '0' : undefined,
+          zIndex: isMobile ? '1000' : undefined
+        }}
       >
-        <Card className="w-100">
-          <Row className="justify-content-end mx-0">
-            <Col
-              className="d-flex align-items-center justify-content-end mt-1"
+        <div 
+          style={{
+            width: isMobile ? '100vw' : '100%',
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+            margin: isMobile ? '0' : '0',
+            padding: isMobile ? '0' : '0',
+            position: isMobile ? 'absolute' : undefined,
+            top: isMobile ? '50px' : undefined,
+            left: isMobile ? '20px' : undefined,
+            right: isMobile ? '20px' : undefined,
+            bottom: isMobile ? '0' : undefined,
+            maxWidth: isMobile ? '100vw' : '100%'
+          }}
+        >
+          <Card 
+            className="w-100 mobile-card" 
+            style={{
+              backgroundColor: isDarkTheme ? '#181c2e' : '#ffffff',
+              border: isDarkTheme ? '1px solid #2d3748' : '1px solid #e2e8f0',
+              color: isDarkTheme ? '#ffffff' : '#000000',
+              width: isMobile ? '100vw' : '100%',
+              height: isMobile ? 'calc(100vh - 60px)' : 'auto',
+              margin: isMobile ? '0' : '0',
+              padding: isMobile ? '0' : '0',
+              maxWidth: isMobile ? '100vw' : '100%',
+              position: isMobile ? 'absolute' : undefined,
+              top: isMobile ? '100px' : undefined,
+              left: isMobile ? '0' : undefined,
+              right: isMobile ? '0' : undefined,
+              bottom: isMobile ? '0' : undefined
+            }}
+          >
+            <CardBody className="mobile-card-body">
+              <div className="mobile-search-section">
+                <Row className="justify-content-center justify-content-md-end mx-0">
+                  <Col
+                    className="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end gap-2"
               md="6"
-              sm="12"
+                    xs="12"
             >
+                    <div className="position-relative w-100 w-md-auto">
               <Input
-                className="dataTable-filter mb-50"
+                        className="dataTable-filter w-100 mobile-search-input"
                 type="text"
                 id="search-input"
                 placeholder="Search shops by name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: "200px" }}
-              />
+                        style={{ 
+                          minWidth: "250px",
+                          backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff',
+                          color: isDarkTheme ? '#ffffff' : '#000000',
+                          border: isDarkTheme ? '1px solid #4a5568' : '1px solid #e2e8f0'
+                        }}
+                      />
+                    </div>
 
               <Button
-                className="ms-2 mb-50 d-flex align-items-center"
+                      className="d-flex align-items-center justify-content-center w-100 w-md-auto mobile-add-button"
                 color="primary"
                 onClick={() => navigate("/apps/shops/add")}
-                style={{ minWidth: "150px" }}
+                      style={{ 
+                        minWidth: isMobile ? "80px" : "150px",
+                        maxWidth: isMobile ? "100px" : "auto"
+                      }}
               >
-                <Plus size={15} className="me-1" />
-                <span>Add Shop</span>
+                      <Plus size={15} />
+                      {!isMobile && <span className="ms-1">Add Shop</span>}
               </Button>
             </Col>
           </Row>
+              </div>
           {isLoadingData ? (
             <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
               <Spinner color="primary" />
@@ -398,7 +636,7 @@ const ShopTable = () => {
               </p>
             </div>
           ) : (
-            <div style={{ height: 400, width: '100%', marginBottom: "40px" }}>
+                <div className="table-responsive mobile-table-container" style={{ height: 400, width: '100%', marginBottom: "40px" }}>
               <DataGrid
                 key={currentTheme} // Force re-render when theme changes
                 rows={gridData}
@@ -548,11 +786,57 @@ const ShopTable = () => {
                   '& .MuiDataGrid-virtualScrollerRenderZone': {
                     backgroundColor: isDarkTheme ? '#181c2e !important' : '#ffffff !important',
                   },
+                      // Mobile responsive styles
+                      '@media (max-width: 767.98px)': {
+                        fontSize: '11px !important',
+                        width: '100% !important',
+                        height: '100% !important',
+                        '& .MuiDataGrid-columnHeader': {
+                          fontSize: '9px !important',
+                          padding: '1px 2px !important',
+                          minHeight: '28px !important',
+                          fontWeight: '600 !important',
+                        },
+                        '& .MuiDataGrid-cell': {
+                          fontSize: '9px !important',
+                          padding: '1px 2px !important',
+                          minHeight: '28px !important',
+                        },
+                        '& .MuiDataGrid-main': {
+                          overflowX: 'auto !important',
+                          width: '100% !important',
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                          minWidth: '450px !important',
+                        },
+                        '& .MuiDataGrid-virtualScroller': {
+                          minWidth: '450px !important',
+                        },
+                        '& .MuiDataGrid-footerContainer': {
+                          minWidth: '450px !important',
+                          fontSize: '9px !important',
+                        },
+                        '& .MuiDataGrid-row': {
+                          minHeight: '28px !important',
+                        },
+                        '& .MuiButton-root': {
+                          minWidth: 'auto !important',
+                          padding: '1px 2px !important',
+                          fontSize: '8px !important',
+                          minHeight: '20px !important',
+                        },
+                        '& .MuiDataGrid-root': {
+                          width: '100% !important',
+                          height: '100% !important',
+                        },
+                      },
                 }}
               />
             </div>
           )}
+            </CardBody>
         </Card>
+        </div>
       </div>
     </Fragment>
   )
